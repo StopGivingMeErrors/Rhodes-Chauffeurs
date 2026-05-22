@@ -1,0 +1,101 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Playfair Display', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+
+  --color-velox-void: #0a0a0f;
+  --color-velox-midnight: #0f0f1a;
+  --color-velox-gold: #c9a84c;
+  --color-velox-gold-light: #e8c97a;
+  --color-velox-glass: rgb(255 255 255 / 0.05);
+  --color-velox-glass-border: rgb(255 255 255 / 0.1);
+  --color-velox-muted: rgb(255 255 255 / 0.72);
+
+  --animate-velox-aurora: velox-aurora 18s ease-in-out infinite;
+}
+
+@keyframes velox-aurora {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1) translate(0%, 0%);
+  }
+  33% {
+    opacity: 0.85;
+    transform: scale(1.08) translate(2%, -1%);
+  }
+  66% {
+    opacity: 0.9;
+    transform: scale(1.05) translate(-1%, 1%);
+  }
+}
+
+@keyframes velox-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes velox-booking-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes velox-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(110%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.velox-toast-in {
+  animation: velox-toast-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .velox-toast-in {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .velox-booking-step {
+    animation: none !important;
+  }
+}
+
+.velox-booking-step {
+  animation: velox-booking-step-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply min-h-dvh bg-velox-void font-sans text-white/90;
+    font-family: var(--font-sans);
+  }
+
+  #root {
+    @apply min-h-dvh;
+  }
+}
