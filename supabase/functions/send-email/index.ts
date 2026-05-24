@@ -251,6 +251,9 @@ function str(v: unknown): string | null {
   return String(v)
 }
 
+/** Rhodes operations — Edge Functions run in UTC; always show local Greece time in emails. */
+const BOOKING_DISPLAY_TIMEZONE = 'Europe/Athens'
+
 function formatPickup(iso: string | null): string {
   if (!iso) {
     return '—'
@@ -258,6 +261,7 @@ function formatPickup(iso: string | null): string {
   try {
     const d = new Date(iso)
     return d.toLocaleString('en-GB', {
+      timeZone: BOOKING_DISPLAY_TIMEZONE,
       weekday: 'short',
       day: 'numeric',
       month: 'short',

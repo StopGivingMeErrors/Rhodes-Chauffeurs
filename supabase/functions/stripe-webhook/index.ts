@@ -222,6 +222,7 @@ async function sendPaymentReceiptEmail(
     const amountMinor = Number(pi.amount_received ?? pi.amount ?? 0)
     const amountLabel = formatPaidAmount(amountMinor, pi.currency)
     const paidAtLabel = new Date(paidAt).toLocaleString('en-GB', {
+      timeZone: 'Europe/Athens',
       weekday: 'short',
       day: 'numeric',
       month: 'short',

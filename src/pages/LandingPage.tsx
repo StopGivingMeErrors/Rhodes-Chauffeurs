@@ -38,7 +38,7 @@ const steps = [
 
 const stats = [
   { value: '500+', label: 'Private clients served' },
-  { value: '50+', label: 'Cities & airports' },
+  { value: '100+', label: 'Trusted by tourists from 100+ countries' },
   { value: '24/7', label: 'Concierge support' },
 ] as const
 
