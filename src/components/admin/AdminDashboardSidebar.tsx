@@ -15,16 +15,16 @@ export function AdminDashboardSidebar({ section, onSection }: AdminDashboardSide
   const { signOut, isSigningOut } = useAuth()
 
   const items: { id: AdminSection; label: string; icon: ReactNode }[] = [
-    { id: 'overview', label: 'Overview', icon: <LayoutGrid className="h-4 w-4 shrink-0 opacity-80" aria-hidden /> },
-    { id: 'bookings', label: 'All Bookings', icon: <Table2 className="h-4 w-4 shrink-0 opacity-80" aria-hidden /> },
-    { id: 'routes', label: 'Routes & pricing', icon: <MapPinned className="h-4 w-4 shrink-0 opacity-80" aria-hidden /> },
-    { id: 'fleet', label: 'Landing vehicles', icon: <Car className="h-4 w-4 shrink-0 opacity-80" aria-hidden /> },
-    { id: 'drivers', label: 'Drivers', icon: <Users className="h-4 w-4 shrink-0 opacity-80" aria-hidden /> },
+    { id: 'overview', label: 'Επισκόπηση', icon: <LayoutGrid className="h-4 w-4 shrink-0 opacity-80" aria-hidden /> },
+    { id: 'bookings', label: 'Όλες οι κρατήσεις', icon: <Table2 className="h-4 w-4 shrink-0 opacity-80" aria-hidden /> },
+    { id: 'routes', label: 'Διαδρομές & τιμές', icon: <MapPinned className="h-4 w-4 shrink-0 opacity-80" aria-hidden /> },
+    { id: 'fleet', label: 'Οχήματα αρχικής', icon: <Car className="h-4 w-4 shrink-0 opacity-80" aria-hidden /> },
+    { id: 'drivers', label: 'Οδηγοί', icon: <Users className="h-4 w-4 shrink-0 opacity-80" aria-hidden /> },
   ]
 
   return (
     <aside className="flex w-full shrink-0 flex-col border-b border-white/10 bg-zinc-950/55 px-4 py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl lg:w-60 lg:min-h-0 lg:border-b-0 lg:border-r lg:px-5">
-      <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-velox-muted">Admin</p>
+      <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-velox-muted">Διαχείριση</p>
       <nav className="mt-4 flex min-h-0 flex-1 flex-row gap-2 overflow-x-auto lg:flex-col lg:gap-1" aria-label="Admin sections">
         {items.map((item) => (
           <button
@@ -56,7 +56,7 @@ export function AdminDashboardSidebar({ section, onSection }: AdminDashboardSide
             void signOut()
           }}
         >
-          Sign Out
+          Αποσύνδεση
         </Button>
       </div>
     </aside>

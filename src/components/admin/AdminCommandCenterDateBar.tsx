@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+import { el } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
 
 /**
@@ -12,14 +13,14 @@ export function AdminCommandCenterDateBar() {
     return () => window.clearInterval(id)
   }, [])
 
-  const weekday = format(now, 'EEEE')
-  const monthDay = format(now, 'MMMM d')
+  const weekday = format(now, 'EEEE', { locale: el })
+  const monthDay = format(now, 'd MMMM', { locale: el })
   const year = format(now, 'yyyy')
 
   return (
     <div
       className="border-b border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-transparent"
-      aria-label={`Today is ${weekday}, ${monthDay}, ${year}`}
+      aria-label={`Σήμερα ${weekday}, ${monthDay}, ${year}`}
     >
       <div className="mx-auto flex w-full max-w-[1600px] items-end justify-between gap-4 px-4 py-4 lg:px-10 lg:py-5">
         <div

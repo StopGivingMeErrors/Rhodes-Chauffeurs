@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useBookingStore } from '@/stores/bookingStore'
 import type { UserProfile } from '@/types/user'
+import { APP_NAME } from '@/utils/constants'
 import { bookingContactSchema, type BookingContactValues } from '@/utils/validators'
 
 type ContactStepProps = {
@@ -52,6 +53,7 @@ function ContactStepFields({ profile, defaultEmail, onBack, onContinue }: Contac
       saveToProfile,
     })
     // Re-seed when signed-in identity or session email changes, not on every keystroke / store tick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- omit form fields so typing does not reset the form
   }, [defaultEmail, profile?.id, reset])
 
   async function submit(values: BookingContactValues) {
@@ -67,7 +69,7 @@ function ContactStepFields({ profile, defaultEmail, onBack, onContinue }: Contac
   return (
     <form className="space-y-5" onSubmit={handleSubmit(submit)} noValidate>
       <p className="text-sm text-velox-muted">
-        We use this for your receipt and day-of coordination. Use the email on this Velox VIP account (you can
+        We use this for your receipt and day-of coordination. Use the email on this {APP_NAME} account (you can
         adjust it if needed).
       </p>
       <div className="grid gap-4 lg:grid-cols-2">
@@ -93,7 +95,7 @@ function ContactStepFields({ profile, defaultEmail, onBack, onContinue }: Contac
         <span>
           <span className="block text-sm font-medium text-white">Save to my profile</span>
           <span className="mt-0.5 block text-xs text-velox-muted">
-            Keep this name and phone on your Velox VIP account for next time.
+            Keep this name and phone on your {APP_NAME} account for next time.
           </span>
         </span>
       </label>

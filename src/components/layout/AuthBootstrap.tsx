@@ -38,14 +38,16 @@ export function AuthBootstrap() {
         if (flash) {
           sessionStorage.removeItem(AUTH_REDIRECT_FLASH_KEY)
           const lower = flash.toLowerCase()
-          const title =
-            lower.includes('expired') || lower.includes('invalid')
+          const confirmed = lower.includes('email is confirmed')
+          const title = confirmed
+            ? 'Email confirmed'
+            : lower.includes('expired') || lower.includes('invalid')
               ? 'Sign-in link'
               : 'Email confirmation'
           toast({
             title,
             description: flash,
-            variant: 'error',
+            variant: confirmed ? 'success' : 'error',
             duration: 9000,
           })
         }

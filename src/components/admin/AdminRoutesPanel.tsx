@@ -32,7 +32,7 @@ function PricingUnitField({
 }) {
   return (
     <label className="block space-y-1.5 text-left">
-      <span className="text-xs font-medium uppercase tracking-wide text-velox-muted">Pricing type</span>
+      <span className="text-xs font-medium uppercase tracking-wide text-velox-muted">Τύπος τιμολόγησης</span>
       <select
         className={selectClass}
         value={value}
@@ -40,10 +40,10 @@ function PricingUnitField({
         onChange={(e) => onChange(e.target.value as RoutePricingUnit)}
       >
         <option value="trip" className="bg-velox-midnight">
-          Fixed trip price
+          Σταθερή τιμή διαδρομής
         </option>
         <option value="hour" className="bg-velox-midnight">
-          Per hour (e.g. island tour)
+          Ανά ώρα (π.χ. νησιωτική περιήγηση)
         </option>
       </select>
     </label>
@@ -70,10 +70,10 @@ export function AdminRoutesPanel() {
       const p14 = parsePrice(price1to4)
       const p58 = parsePrice(price5to8)
       if (p14 == null || p58 == null) {
-        throw new Error('Enter valid prices (0 or greater) for both guest tiers.')
+        throw new Error('Εισάγετε έγκυρες τιμές (0 ή μεγαλύτερες) και για τα δύο επίπεδα επιβατών.')
       }
       if (!title.trim() || !pickup.trim() || !dropoff.trim()) {
-        throw new Error('Title, pickup, and destination are required.')
+        throw new Error('Απαιτούνται τίτλος, αναχώρηση και προορισμός.')
       }
       return createRouteAdmin({
         title: title.trim(),
@@ -96,18 +96,18 @@ export function AdminRoutesPanel() {
       setPrice5to8('')
       setPricingUnit('trip')
       setSubtitle('')
-      toast({ variant: 'success', title: 'Route created' })
+      toast({ variant: 'success', title: 'Δημιουργήθηκε διαδρομή' })
     },
     onError: (e) => {
-      toast({ variant: 'error', title: 'Could not create route', description: e instanceof Error ? e.message : '' })
+      toast({ variant: 'error', title: 'Δεν δημιουργήθηκε διαδρομή', description: e instanceof Error ? e.message : '' })
     },
   })
 
-  if (isLoading) return <Spinner label="Loading routes" />
+  if (isLoading) return <Spinner label="Φόρτωση διαδρομών" />
   if (error) {
     return (
-      <Card title="Routes">
-        <p className="text-sm text-red-200">{error instanceof Error ? error.message : 'Failed to load routes.'}</p>
+      <Card title="Διαδρομές">
+        <p className="text-sm text-red-200">{error instanceof Error ? error.message : 'Αποτυχία φόρτωσης διαδρομών.'}</p>
       </Card>
     )
   }
@@ -115,20 +115,20 @@ export function AdminRoutesPanel() {
   return (
     <div className="space-y-8">
       <p className="text-sm text-velox-muted">
-        Custom routes (any address) are cash to the driver only — not priced here. Fixed routes use{' '}
-        <span className="text-white/80">1–4</span> and <span className="text-white/80">5–8</span> guest tiers (same as
-        the booking wizard). All fixed routes use Lindos as the starting base unless you override the subtitle.
+        Οι ειδικές διαδρομές (οποιαδήποτε διεύθυνση) είναι μόνο με μετρητά στον οδηγό — δεν τιμολογούνται εδώ. Οι
+        σταθερές διαδρομές έχουν κλίμακες <span className="text-white/80">1–4</span> και{' '}
+        <span className="text-white/80">5–8</span> επιβατών. Βάση αναχώρησης Lindos εκτός αν αλλάξετε τον υπότιτλο.
       </p>
 
       <Card
-        title="Add fixed route"
-        description="Set both passenger tiers — customers pay based on how many guests they select at booking."
+        title="Νέα σταθερή διαδρομή"
+        description="Ορίστε και τα δύο επίπεδα τιμών — η χρέωση εξαρτάται από τους επιβάτες."
       >
         <div className="grid gap-3 sm:grid-cols-2">
-          <Input label="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Input label="Τίτλος" value={title} onChange={(e) => setTitle(e.target.value)} />
           <PricingUnitField value={pricingUnit} onChange={setPricingUnit} />
           <Input
-            label="Price 1–4 guests (EUR)"
+            label="Τιμή 1–4 επιβάτες (EUR)"
             type="number"
             min={0}
             step="0.01"
@@ -136,24 +136,24 @@ export function AdminRoutesPanel() {
             onChange={(e) => setPrice1to4(e.target.value)}
           />
           <Input
-            label="Price 5–8 guests (EUR)"
+            label="Τιμή 5–8 επιβάτες (EUR)"
             type="number"
             min={0}
             step="0.01"
             value={price5to8}
             onChange={(e) => setPrice5to8(e.target.value)}
           />
-          <Input label="Pickup" className="sm:col-span-2" value={pickup} onChange={(e) => setPickup(e.target.value)} />
+          <Input label="Αναχώρηση" className="sm:col-span-2" value={pickup} onChange={(e) => setPickup(e.target.value)} />
           <Input
-            label="Destination"
+            label="Προορισμός"
             className="sm:col-span-2"
             value={dropoff}
             onChange={(e) => setDropoff(e.target.value)}
           />
           <Input
-            label="Subtitle (optional)"
+            label="Υπότιτλος (προαιρετικό)"
             className="sm:col-span-2"
-            placeholder="Leave blank to auto-generate from prices + Lindos base"
+            placeholder="Κενό για αυτόματο από τιμές + βάση Lindos"
             value={subtitle}
             onChange={(e) => setSubtitle(e.target.value)}
           />
@@ -165,14 +165,14 @@ export function AdminRoutesPanel() {
           isLoading={createMutation.isPending}
           onClick={() => void createMutation.mutate()}
         >
-          Create route
+          Δημιουργία διαδρομής
         </Button>
       </Card>
 
-      <Card title="Fixed routes" description="Edit tier prices or deactivate. Changes apply at checkout immediately.">
+      <Card title="Σταθερές διαδρομές" description="Επεξεργασία τιμών ή απενεργοποίηση. Οι αλλαγές ισχύουν αμέσως στην κράτηση.">
         <ul className="space-y-4">
           {routes.length === 0 ? (
-            <p className="text-sm text-velox-muted">No routes yet. Add one above.</p>
+            <p className="text-sm text-velox-muted">Δεν υπάρχουν διαδρομές. Προσθέστε μία από πάνω.</p>
           ) : null}
           {routes.map((route) => (
             <RouteRow key={route.id} route={route} />
@@ -196,7 +196,7 @@ function RouteRow({ route }: { route: TransportRoute }) {
       const p14 = parsePrice(price1to4)
       const p58 = parsePrice(price5to8)
       if (p14 == null || p58 == null) {
-        throw new Error('Enter valid prices for both guest tiers.')
+        throw new Error('Εισάγετε έγκυρες τιμές και για τα δύο επίπεδα επιβατών.')
       }
       return updateRouteAdmin(route.id, {
         price1to4: p14,
@@ -208,12 +208,12 @@ function RouteRow({ route }: { route: TransportRoute }) {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['admin', 'routes'] })
       void qc.invalidateQueries({ queryKey: ['routes', 'active'] })
-      toast({ variant: 'success', title: 'Route updated' })
+      toast({ variant: 'success', title: 'Η διαδρομή ενημερώθηκε' })
     },
     onError: (e) => {
       toast({
         variant: 'error',
-        title: 'Could not update route',
+        title: 'Δεν ενημερώθηκε η διαδρομή',
         description: e instanceof Error ? e.message : '',
       })
     },
@@ -229,7 +229,7 @@ function RouteRow({ route }: { route: TransportRoute }) {
       <p className="mt-2 text-sm text-velox-gold-light">{formatRouteTierSummary(route)}</p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <Input
-          label="Price 1–4 guests (EUR)"
+          label="Τιμή 1–4 επιβάτες (EUR)"
           type="number"
           min={0}
           step="0.01"
@@ -258,17 +258,16 @@ function RouteRow({ route }: { route: TransportRoute }) {
             onChange={(e) => setActive(e.target.checked)}
             className="accent-velox-gold"
           />
-          Active on booking page
+          Ενεργή στη σελίδα κράτησης
         </label>
         <Button type="button" size="sm" isLoading={saveMutation.isPending} onClick={() => void saveMutation.mutate()}>
-          Save
+          Αποθήκευση
         </Button>
       </div>
       <p className="mt-2 text-[11px] text-velox-muted">
-        Checkout uses {formatCurrencyMajor(route.price1to4, 'EUR')}
-        {route.pricingUnit === 'hour' ? '/hr' : ''} (1–4) or{' '}
-        {formatCurrencyMajor(route.price5to8, 'EUR')}
-        {route.pricingUnit === 'hour' ? '/hr' : ''} (5–8).
+        Η κράτηση χρησιμοποιεί {formatCurrencyMajor(route.price1to4, 'EUR')}
+        {route.pricingUnit === 'hour' ? '/ώρα' : ''} (1–4) ή {formatCurrencyMajor(route.price5to8, 'EUR')}
+        {route.pricingUnit === 'hour' ? '/ώρα' : ''} (5–8).
       </p>
     </li>
   )

@@ -11,13 +11,13 @@ import { usePageMeta } from '@/hooks/usePageMeta'
 import { useBooking } from '@/hooks/useBooking'
 import { startHostedStripeCheckout } from '@/services/stripeService'
 import { isSupabaseConfigured } from '@/services/supabase'
-import { QUERY_KEYS, ROUTES } from '@/utils/constants'
+import { APP_NAME, QUERY_KEYS, ROUTES } from '@/utils/constants'
 import { formatCurrencyMajor, formatDateTime } from '@/utils/formatters'
 
 export function ConfirmationPage() {
   usePageMeta({
     title: 'Reservation & payment',
-    description: 'Review your Velox VIP itinerary, pay securely with Stripe, and receive your confirmation details.',
+    description: `Review your ${APP_NAME} itinerary, pay securely with Stripe, and receive your confirmation details.`,
   })
   const queryClient = useQueryClient()
   const { id: idParam } = useParams()

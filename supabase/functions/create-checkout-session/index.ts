@@ -285,7 +285,7 @@ async function handleCreateCheckoutSession(req: Request, corsHeaders: Record<str
               currency: currency.toLowerCase(),
               unit_amount: amountMinor,
               product_data: {
-                name: 'Velox VIP private transfer',
+                name: 'Rhodes Chauffeurs private transfer',
                 description: `Reservation ${bookingId.slice(0, 8)}`,
               },
             },

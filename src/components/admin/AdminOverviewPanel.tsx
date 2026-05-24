@@ -49,8 +49,8 @@ export function AdminOverviewPanel() {
 
   if (error) {
     return (
-      <Card title="Could not load KPIs">
-        <p className="text-sm text-red-200">{error instanceof Error ? error.message : 'Unknown error'}</p>
+      <Card title="Δεν φορτώθηκαν τα KPI">
+        <p className="text-sm text-red-200">{error instanceof Error ? error.message : 'Άγνωστο σφάλμα'}</p>
       </Card>
     )
   }
@@ -60,39 +60,39 @@ export function AdminOverviewPanel() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-velox-muted">Aggregates from Supabase for the current local day and month.</p>
+        <p className="text-sm text-velox-muted">Σύνολα από το Supabase για την τρέχουσα ημέρα και τον μήνα (τοπική ώρα).</p>
         <button
           type="button"
           onClick={() => void refetch()}
           className="text-xs font-medium uppercase tracking-wide text-velox-gold-light hover:underline disabled:opacity-50"
           disabled={isFetching}
         >
-          {isFetching ? 'Refreshing…' : 'Refresh'}
+          {isFetching ? 'Ανανέωση…' : 'Ανανέωση'}
         </button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
-          label="Today's bookings"
+          label="Κρατήσεις σήμερα"
           value={String(k.todayBookings)}
-          sub="Pickups scheduled today"
+          sub="Παραλαβές που προγραμματίστηκαν για σήμερα"
           icon={<CalendarCheck className="h-5 w-5" aria-hidden />}
         />
         <KpiCard
-          label="Revenue this month"
+          label="Έσοδα μήνα"
           value={formatCurrencyMajor(k.revenueThisMonth, 'EUR')}
-          sub="Completed trips, pickup in month"
+          sub="Ολοκληρωμένα δρομολόγια, παραλαβή στον μήνα"
           icon={<CircleDollarSign className="h-5 w-5" aria-hidden />}
         />
         <KpiCard
-          label="Active rides"
+          label="Ενεργά δρομολόγια"
           value={String(k.activeRides)}
-          sub="In progress now"
+          sub="Σε εξέλιξη τώρα"
           icon={<Car className="h-5 w-5" aria-hidden />}
         />
         <KpiCard
-          label="Pending assignments"
+          label="Εκκρεμείς αναθέσεις"
           value={String(k.pendingAssignments)}
-          sub="Confirmed, no driver yet"
+          sub="Επιβεβαιωμένα, χωρίς οδηγό ακόμα"
           icon={<Radio className="h-5 w-5" aria-hidden />}
         />
       </div>

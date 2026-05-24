@@ -116,7 +116,6 @@ export function useBooking(bookingId?: string, options?: UseBookingOptions) {
     vehicles: vehiclesQuery.data ?? [],
     vehiclesError: vehiclesQuery.error,
     isVehiclesLoading: vehiclesQuery.isLoading,
-    isVehiclesEmpty: !vehiclesQuery.isLoading && (vehiclesQuery.data?.length ?? 0) === 0,
     bookings: bookingsQuery.data ?? [],
     bookingsError: bookingsQuery.error,
     isBookingsLoading: bookingsQuery.isLoading,

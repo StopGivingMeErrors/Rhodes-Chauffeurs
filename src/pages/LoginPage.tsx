@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -12,7 +12,7 @@ import { usePageMeta } from '@/hooks/usePageMeta'
 import { formatAuthError } from '@/services/authService'
 import { useAuthStore } from '@/stores/authStore'
 import type { UserProfile } from '@/types/user'
-import { ROUTES } from '@/utils/constants'
+import { APP_NAME, ROUTES } from '@/utils/constants'
 import { cn } from '@/utils/cn'
 import { loginSchema, signupSchema, type LoginFormValues, type SignupFormValues } from '@/utils/validators'
 
@@ -34,28 +34,21 @@ function resolvePostAuthPath(fromPath: string | undefined, p: UserProfile | null
 export function LoginPage() {
   usePageMeta({
     title: 'Client login',
-    description: 'Sign in or create a Velox VIP account to manage reservations and complete payment.',
+    description: `Sign in or create a ${APP_NAME} account to manage reservations and complete payment.`,
   })
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const { signIn, signUp, isAuthenticated, isLoading, profile } = useAuth()
-  const [tab, setTab] = useState<AuthTab>('signin')
-  const [signInError, setSignInError] = useState<string | null>(null)
-  const [signUpError, setSignUpError] = useState<string | null>(null)
-  const authSubmitLock = useRef(false)
-
   const stateFrom = (location.state as { from?: string } | null)?.from
   const nextFromQuery = searchParams.get('next')?.trim() || undefined
   const returnPath = nextFromQuery ?? stateFrom
   const defaultAfterAuth = resolvePostAuthPath(returnPath, profile)
   const redirectingToBook = returnPath === ROUTES.book
-
-  useEffect(() => {
-    if (redirectingToBook) {
-      setTab('signup')
-    }
-  }, [redirectingToBook])
+  const [tab, setTab] = useState<AuthTab>(() => (redirectingToBook ? 'signup' : 'signin'))
+  const [signInError, setSignInError] = useState<string | null>(null)
+  const [signUpError, setSignUpError] = useState<string | null>(null)
+  const authSubmitLock = useRef(false)
 
   const signInForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -129,7 +122,7 @@ export function LoginPage() {
     <PageWrapper variant="landing" className="items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1 className="font-display text-3xl text-white sm:text-4xl">Velox VIP</h1>
+          <h1 className="font-display text-3xl text-white sm:text-4xl">{APP_NAME}</h1>
           <p className="mt-2 text-sm text-velox-muted">Sign in to manage journeys, or create a client account.</p>
         </div>
 
@@ -137,7 +130,7 @@ export function LoginPage() {
           <div className="mb-4 rounded-xl border border-velox-gold/30 bg-velox-gold/[0.08] px-4 py-3 text-left">
             <p className="text-sm font-medium text-velox-gold-light">Continue to your booking</p>
             <p className="mt-1 text-xs leading-relaxed text-white/75">
-              Velox VIP bookings use a signed-in account. Create your client profile (confirm the email we send),
+              {APP_NAME} bookings use a signed-in account. Create your client profile (confirm the email we send),
               or sign in if you already have one — then you will return to the booking page to choose your vehicle
               and pay.
             </p>
@@ -179,7 +172,14 @@ export function LoginPage() {
           </div>
 
           {tab === 'signin' ? (
-            <form className="space-y-4" onSubmit={signInForm.handleSubmit(onSignIn)} noValidate>
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault()
+                void signInForm.handleSubmit(onSignIn)(e)
+              }}
+              noValidate
+            >
               <Input
                 label="Email"
                 type="email"
@@ -200,7 +200,14 @@ export function LoginPage() {
               </Button>
             </form>
           ) : (
-            <form className="space-y-4" onSubmit={signUpForm.handleSubmit(onSignUp)} noValidate>
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault()
+                void signUpForm.handleSubmit(onSignUp)(e)
+              }}
+              noValidate
+            >
               <Input
                 label="Full name"
                 autoComplete="name"

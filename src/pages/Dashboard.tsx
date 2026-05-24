@@ -5,11 +5,12 @@ import { ProfilePanel } from '@/components/dashboard/ProfilePanel'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { useAuth } from '@/hooks/useAuth'
 import { usePageMeta } from '@/hooks/usePageMeta'
+import { APP_NAME } from '@/utils/constants'
 
 export function Dashboard() {
   usePageMeta({
     title: 'My trips',
-    description: 'View upcoming and past Velox VIP bookings, update your profile, and manage reservations.',
+    description: `View upcoming and past ${APP_NAME} bookings, update your profile, and manage reservations.`,
   })
   const { profile } = useAuth()
   const [section, setSection] = useState<DashboardSection>('bookings')

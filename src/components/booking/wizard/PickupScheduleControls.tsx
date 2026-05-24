@@ -1,5 +1,5 @@
 import { Calendar } from 'lucide-react'
-import { useLayoutEffect, useState } from 'react'
+import { useLayoutEffect, useMemo } from 'react'
 import { Input } from '@/components/ui/Input'
 import { useBookingStore } from '@/stores/bookingStore'
 import {
@@ -42,18 +42,22 @@ export function PickupScheduleControls() {
   const passengers = useBookingStore((s) => s.passengers)
   const setJourney = useBookingStore((s) => s.setJourney)
   const minD = todayIsoDate()
-  const [scheduleHint, setScheduleHint] = useState<string | null>(null)
 
   const allowedTimes = availablePickupTimesForDate(pickupDate)
+
+  const scheduleHint = useMemo(() => {
+    const snapped = snapPickupSchedule(pickupDate, pickupTime)
+    if (snapped.error) {
+      return snapped.error
+    }
+    return validatePickupSchedule(snapped.pickupDate, snapped.pickupTime)
+  }, [pickupDate, pickupTime])
 
   useLayoutEffect(() => {
     const snapped = snapPickupSchedule(pickupDate, pickupTime)
     if (snapped.error) {
-      setScheduleHint(snapped.error)
       return
     }
-    const err = validatePickupSchedule(snapped.pickupDate, snapped.pickupTime)
-    setScheduleHint(err)
     if (snapped.pickupDate !== pickupDate || snapped.pickupTime !== pickupTime) {
       setJourney({
         pickupDate: snapped.pickupDate,
@@ -77,7 +81,6 @@ export function PickupScheduleControls() {
       pickupTime: time,
       pickupDatetime: toPickupIso(date, time),
     })
-    setScheduleHint(validatePickupSchedule(date, time))
   }
 
   const safeTime = allowedTimes.includes(pickupTime)

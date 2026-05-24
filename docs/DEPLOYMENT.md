@@ -24,7 +24,7 @@
    ```
 
 4. **Auth → URL configuration**
-   - Site URL: production app URL (e.g. `https://app.veloxvip.com`)
+   - Site URL: `https://rodoschauffeurs.gr` (and `https://www.rodoschauffeurs.gr` if you use www)
    - Redirect URLs: production + `http://localhost:5173` for dev
    - Enable email confirmation if required for your launch policy
 
@@ -49,7 +49,7 @@ In **Supabase Dashboard → Edge Functions → Secrets** (or `npx supabase secre
 | `STRIPE_SECRET_KEY` | yes | `create-checkout-session`, `stripe-webhook` |
 | `STRIPE_WEBHOOK_SECRET` | yes | `stripe-webhook` |
 | `RESEND_API_KEY` | yes | `send-email`, receipt in `stripe-webhook` |
-| `RESEND_FROM` | yes | e.g. `Velox VIP <bookings@yourdomain.com>` |
+| `RESEND_FROM` | yes | e.g. `Rhodes Chauffeurs <bookings@rodoschauffeurs.gr>` |
 | `BOOKING_EMAIL_WEBHOOK_SECRET` | if using DB webhooks | `send-email` |
 | `ADMIN_NOTIFY_EMAILS` | recommended | `send-email` — comma-separated ops inboxes when a guest creates a booking (also emails `profiles.role = admin`) |
 | `ACCESS_CONTROL_ALLOW_ORIGIN` | optional | lock CORS to production origin |
@@ -121,7 +121,7 @@ stripe listen --forward-to http://127.0.0.1:54321/functions/v1/stripe-webhook
 3. Add `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_STRIPE_PUBLISHABLE_KEY` under **Environment Variables**.
 4. `vercel.json` in the repo already rewrites all routes to `index.html` and sets basic security headers.
 5. After deploy, add the production URL to Supabase **Auth → URL configuration** (Site URL + Redirect URLs).
-6. Set `ACCESS_CONTROL_ALLOW_ORIGIN` in Supabase secrets to your Vercel URL (e.g. `https://your-app.vercel.app`).
+6. Set `ACCESS_CONTROL_ALLOW_ORIGIN` in Supabase secrets to `https://rodoschauffeurs.gr` (or your Vercel preview URL during staging).
 
 ## 6. Optional: database webhooks for email
 

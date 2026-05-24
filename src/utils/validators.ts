@@ -97,12 +97,6 @@ export const journeyStepSchema = z
 
 export type JourneyStepValues = z.infer<typeof journeyStepSchema>
 
-export const vehicleStepSchema = z.object({
-  vehicleId: z.string().uuid('Select a vehicle'),
-})
-
-export type VehicleStepValues = z.infer<typeof vehicleStepSchema>
-
 /** Contact step for logged-in users booking a ride (no account creation here). */
 export const bookingContactSchema = z.object({
   fullName: cleanText(FIELD_LIMITS.fullName).pipe(z.string().min(2, 'Enter your full name')),
@@ -116,22 +110,3 @@ export const bookingContactSchema = z.object({
 })
 
 export type BookingContactValues = z.infer<typeof bookingContactSchema>
-
-/** Legacy single-form booking (admin / simple flows). */
-export const bookingFormSchema = z.object({
-  vehicleId: z.string().uuid('Select a vehicle'),
-  pickupDatetime: z.string().min(1, 'Choose a pickup time'),
-  pickupAddress: cleanText(FIELD_LIMITS.address).pipe(z.string().min(3, 'Enter a pickup address')),
-  dropoffAddress: cleanText(FIELD_LIMITS.address).pipe(z.string().min(3, 'Enter a destination')),
-  passengers: z.number().int().min(1).max(12),
-  flightNumber: cleanText(FIELD_LIMITS.flightNumber)
-    .pipe(z.string().max(FIELD_LIMITS.flightNumber))
-    .optional()
-    .or(z.literal('')),
-  specialRequests: cleanText(FIELD_LIMITS.specialRequests)
-    .pipe(z.string().max(FIELD_LIMITS.specialRequests))
-    .optional()
-    .or(z.literal('')),
-})
-
-export type BookingFormValues = z.infer<typeof bookingFormSchema>

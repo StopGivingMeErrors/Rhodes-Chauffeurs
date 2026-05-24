@@ -70,6 +70,9 @@ export type AssignedDriver = {
 export type BookingWithVehicle = Booking & {
   vehicleName: string | null
   routeTitle: string | null
+  clientEmail: string | null
+  clientFullName: string | null
+  clientPhone: string | null
   driver?: AssignedDriver | null
 }
 

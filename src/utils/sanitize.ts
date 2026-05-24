@@ -1,4 +1,5 @@
 /** Strip control chars / HTML tags and cap length for user-supplied text. */
+// eslint-disable-next-line no-control-regex -- intentional removal of ASCII control characters
 const CONTROL_CHARS = /[\u0000-\u001F\u007F-\u009F]/g
 const HTML_TAGS = /<[^>]*>/g
 

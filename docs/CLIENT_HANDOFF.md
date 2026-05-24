@@ -1,22 +1,24 @@
-# Velox VIP — Client handoff
+# Rhodes Chauffeurs — Client handoff
 
-This document is the **starting point** for operators, stakeholders, and technical owners taking over the Velox VIP platform.
+This document is the **starting point** for operators, stakeholders, and technical owners taking over the Rhodes Chauffeurs platform.
+
+**Production URL:** https://rodoschauffeurs.gr
 
 ## What the product does
 
-Velox VIP is a private chauffeur booking web application:
+Rhodes Chauffeurs is a private chauffeur booking web application for VIP transfers in Rhodes:
 
 | Audience | Capabilities |
 |----------|----------------|
-| **Guests / clients** | Browse fleet, complete a 4-step booking wizard, pay via Stripe Checkout, view confirmation and booking history |
-| **Admins** | Manage fleet, drivers, bookings; assign chauffeurs; change status; export CSV; send client notification emails |
+| **Guests / clients** | Browse fleet, complete a 3-step booking wizard (route or custom trip → contact → checkout), pay via Stripe Checkout for fixed routes, view confirmation and booking history |
+| **Admins** | Manage fleet, drivers, routes, bookings; assign chauffeurs and vehicles; confirm or cancel rides; export PDF; send client notification emails |
 
 ## User journeys
 
 ### 1. Book and pay (client)
 
 1. Sign up or log in (`/login`).
-2. Open **Book** (`/book`) — wizard steps: journey → vehicle → contact → checkout.
+2. Open **Book** (`/book`) — wizard steps: route or custom itinerary → contact → checkout (fixed routes: card via Stripe; custom trips: cash to driver).
 3. A **pending** booking row is created in Supabase when the client reaches checkout.
 4. **Pay with card** redirects to Stripe Hosted Checkout (same browser tab).
 5. After payment, Stripe redirects to `/confirmation/:bookingId`.
@@ -67,7 +69,7 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for setup steps and [API_AND_INTEGRATIONS.m
 
 ## Quality assurance
 
-Automated **unit tests** cover validation, wizard helpers, formatters, and CSV export:
+Automated **unit tests** cover validation, wizard helpers, formatters, and admin PDF export:
 
 ```bash
 npm run test

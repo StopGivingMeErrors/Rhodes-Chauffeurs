@@ -9,6 +9,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from 'date-fns'
+import { el } from 'date-fns/locale'
 import { useEffect, useMemo, useState } from 'react'
 import { useAdminKpis } from '@/hooks/useAdminDashboard'
 import { cn } from '@/utils/cn'
@@ -114,7 +115,7 @@ export function AdminOpsDigitalClock() {
     try {
       return Intl.DateTimeFormat().resolvedOptions().timeZone.replace(/_/g, ' ')
     } catch {
-      return 'Local time'
+      return 'Τοπική ώρα'
     }
   }, [])
 
@@ -130,7 +131,7 @@ export function AdminOpsDigitalClock() {
   return (
     <section
       className="relative mb-6 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] via-black/40 to-black/60 p-5 shadow-[0_8px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-6"
-      aria-label="Operations clock and day progress"
+      aria-label="Ρολόι λειτουργίας και πρόοδος ημέρας"
     >
       <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(ellipse_80%_50%_at_20%_0%,rgba(201,168,76,0.12),transparent_55%)]" />
 
@@ -138,9 +139,9 @@ export function AdminOpsDigitalClock() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between lg:block">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-velox-gold-light/80">
-              Operations clock
+              Ρολόι λειτουργίας
             </p>
-            <p className="mt-1 text-xs text-white/45">{format(now, 'EEEE · MMM d')}</p>
+            <p className="mt-1 text-xs text-white/45">{format(now, 'EEEE · MMM d', { locale: el })}</p>
           </div>
 
           <div
@@ -175,13 +176,17 @@ export function AdminOpsDigitalClock() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <ProgressTrack label="Day cycle" value={dayPct} hint="Local day elapsed" />
-          <ProgressTrack label="Week cycle" value={weekPct} hint="Monday → Sunday" accent="sky" />
-          <ProgressTrack label="Month cycle" value={monthPct} hint={format(startOfMonth(now), 'MMMM yyyy')} />
+          <ProgressTrack label="Κύκλος ημέρας" value={dayPct} hint="Ποσοστό ημέρας που πέρασε" />
+          <ProgressTrack label="Κύκλος εβδομάδας" value={weekPct} hint="Δευτέρα → Κυριακή" accent="sky" />
           <ProgressTrack
-            label="Today's dispatch"
+            label="Κύκλος μήνα"
+            value={monthPct}
+            hint={format(startOfMonth(now), 'MMMM yyyy', { locale: el })}
+          />
+          <ProgressTrack
+            label="Αναθέσεις σήμερα"
             value={dispatchPct}
-            hint={`${todayBookings} pickup${todayBookings === 1 ? '' : 's'} today · ${activeRides} active · ${pendingAssign} unassigned`}
+            hint={`${todayBookings} παραλαβ${todayBookings === 1 ? 'ή' : 'ές'} σήμερα · ${activeRides} ενεργ${activeRides === 1 ? 'ό' : 'ά'} · ${pendingAssign} χωρίς ανάθεση`}
             accent="emerald"
           />
         </div>

@@ -129,7 +129,7 @@ Migrations under `supabase/migrations/` are applied in timestamp order; use `npm
 | Admin “notify client” | Client invokes `send-email` with user JWT, `mode: admin_notify` |
 | Admin cancellation | `mode: admin_cancel` |
 
-Templates are HTML strings in the Edge Function (Velox VIP branding).
+Templates are HTML strings in the Edge Function (Rhodes Chauffeurs branding; site link rodoschauffeurs.gr).
 
 ## Security notes
 
@@ -142,7 +142,7 @@ Templates are HTML strings in the Edge Function (Velox VIP branding).
 
 Vitest runs in Node against pure utilities:
 
-- `src/utils/*.test.ts` — validation, wizard fingerprint, formatters, CSV
+- `src/utils/*.test.ts` — validation, wizard fingerprint, formatters, PDF export
 
 Run: `npm run test` / `npm run test:coverage`
 

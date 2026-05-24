@@ -128,12 +128,5 @@ export function useAuth() {
     updateClientProfile,
     syncAuthFromSupabase,
     resendSignupConfirmationEmail,
-    /** @deprecated use isLoading */
-    isInitializing: isLoading,
-    /** @deprecated use signIn */
-    signInWithPassword: signIn,
-    /** @deprecated use signUp */
-    signUpWithEmail: (input: { email: string; password: string; fullName: string; phone?: string }) =>
-      signUp(input.email, input.password, input.fullName, input.phone ?? '', undefined),
   }
 }

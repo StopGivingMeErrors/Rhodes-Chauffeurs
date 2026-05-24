@@ -5,11 +5,7 @@ import { availablePickupTimesForDate } from '@/utils/bookingPickupValidation'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useBookingStore } from '@/stores/bookingStore'
-import {
-  journeyStepSchema,
-  PICKUP_TIME_SLOTS,
-  type JourneyStepValues,
-} from '@/utils/validators'
+import { journeyStepSchema, type JourneyStepValues } from '@/utils/validators'
 import { toPickupIso } from '@/utils/bookingWizard'
 
 type JourneyStepProps = {

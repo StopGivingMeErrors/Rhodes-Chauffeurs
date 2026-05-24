@@ -118,8 +118,3 @@ export function draftMatchesBooking(draft: BookingDraft, b: Booking): boolean {
     priceOk
   )
 }
-
-/** @deprecated Use buildFixedRouteDraft / buildCustomRouteDraft */
-export function buildBookingDraft(): never {
-  throw new Error('buildBookingDraft(vehicle) removed — use route-based draft builders.')
-}

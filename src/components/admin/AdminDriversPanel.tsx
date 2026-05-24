@@ -45,12 +45,12 @@ export function AdminDriversPanel() {
       setEmail('')
       setPhone('')
       invalidate()
-      toast({ variant: 'success', title: 'Driver added' })
+      toast({ variant: 'success', title: 'Προστέθηκε οδηγός' })
     },
     onError: (e) => {
       toast({
         variant: 'error',
-        title: 'Could not add driver',
+        title: 'Δεν προστέθηκε οδηγός',
         description: e instanceof Error ? e.message : undefined,
       })
     },
@@ -66,12 +66,12 @@ export function AdminDriversPanel() {
     onSuccess: () => {
       setEditingId(null)
       invalidate()
-      toast({ variant: 'success', title: 'Driver updated' })
+      toast({ variant: 'success', title: 'Ενημερώθηκε οδηγός' })
     },
     onError: (e) => {
       toast({
         variant: 'error',
-        title: 'Could not update driver',
+        title: 'Δεν ενημερώθηκε οδηγός',
         description: e instanceof Error ? e.message : undefined,
       })
     },
@@ -81,12 +81,12 @@ export function AdminDriversPanel() {
     mutationFn: (id: string) => deleteCompanyDriver(id),
     onSuccess: () => {
       invalidate()
-      toast({ variant: 'success', title: 'Driver removed' })
+      toast({ variant: 'success', title: 'Αφαιρέθηκε οδηγός' })
     },
     onError: (e) => {
       toast({
         variant: 'error',
-        title: 'Could not remove driver',
+        title: 'Δεν αφαιρέθηκε οδηγός',
         description: e instanceof Error ? e.message : undefined,
       })
     },
@@ -102,10 +102,10 @@ export function AdminDriversPanel() {
   const columns: AdminColumn<CompanyDriver>[] = [
     {
       id: 'name',
-      header: 'Name',
+      header: 'Όνομα',
       cell: (d) =>
         editingId === d.id ? (
-          <input className={cellInputClass} value={editName} onChange={(e) => setEditName(e.target.value)} aria-label="Name" />
+          <input className={cellInputClass} value={editName} onChange={(e) => setEditName(e.target.value)} aria-label="Όνομα" />
         ) : (
           <span className="font-medium text-white">{d.fullName}</span>
         ),
@@ -128,23 +128,23 @@ export function AdminDriversPanel() {
     },
     {
       id: 'phone',
-      header: 'Phone',
+      header: 'Τηλέφωνο',
       cell: (d) =>
         editingId === d.id ? (
-          <input className={cellInputClass} type="tel" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} aria-label="Phone" />
+          <input className={cellInputClass} type="tel" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} aria-label="Τηλέφωνο" />
         ) : (
           <span className="text-white/80">{d.phone ?? '—'}</span>
         ),
     },
     {
       id: 'actions',
-      header: '',
+      header: 'Ενέργειες',
       className: 'w-[1%] whitespace-nowrap text-right',
       cell: (d) =>
         editingId === d.id ? (
           <div className="flex flex-wrap justify-end gap-2">
             <Button type="button" size="sm" variant="secondary" disabled={updateMut.isPending} onClick={() => setEditingId(null)}>
-              Cancel
+              Ακύρωση
             </Button>
             <Button
               type="button"
@@ -153,13 +153,13 @@ export function AdminDriversPanel() {
               isLoading={updateMut.isPending}
               onClick={() => void updateMut.mutateAsync(d.id)}
             >
-              Save
+              Αποθήκευση
             </Button>
           </div>
         ) : (
           <div className="flex flex-wrap justify-end gap-2">
             <Button type="button" size="sm" variant="secondary" onClick={() => startEdit(d)}>
-              Edit
+              Επεξεργασία
             </Button>
             <Button
               type="button"
@@ -168,12 +168,12 @@ export function AdminDriversPanel() {
               className={cn('text-red-300 hover:text-red-200')}
               disabled={deleteMut.isPending}
               onClick={() => {
-                if (window.confirm(`Remove ${d.fullName} from the roster?`)) {
+                if (window.confirm(`Αφαίρεση του ${d.fullName} από το roster;`)) {
                   void deleteMut.mutateAsync(d.id)
                 }
               }}
             >
-              Delete
+              Διαγραφή
             </Button>
           </div>
         ),
@@ -183,26 +183,26 @@ export function AdminDriversPanel() {
   if (isLoading) {
     return (
       <div className="flex min-h-[200px] items-center justify-center">
-        <Spinner label="Loading drivers" />
+        <Spinner label="Φόρτωση οδηγών" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <Card title="Drivers">
-        <p className="text-sm text-red-200">{error instanceof Error ? error.message : 'Error'}</p>
+      <Card title="Οδηγοί">
+        <p className="text-sm text-red-200">{error instanceof Error ? error.message : 'Σφάλμα'}</p>
       </Card>
     )
   }
 
   return (
     <div className="space-y-6">
-      <Card title="Add driver" description="Internal roster only — no app login. Used when assigning bookings.">
+      <Card title="Προσθήκη οδηγού" description="Εσωτερικό roster μόνο — χωρίς σύνδεση στην εφαρμογή. Χρησιμοποιείται στις κρατήσεις.">
         <div className="grid gap-4 sm:grid-cols-3">
-          <Input label="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} autoComplete="name" />
+          <Input label="Ονοματεπώνυμο" value={fullName} onChange={(e) => setFullName(e.target.value)} autoComplete="name" />
           <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-          <Input label="Phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" />
+          <Input label="Τηλέφωνο" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" />
         </div>
         <Button
           type="button"
@@ -211,20 +211,20 @@ export function AdminDriversPanel() {
           isLoading={createMut.isPending}
           onClick={() => void createMut.mutateAsync()}
         >
-          Add to roster
+          Προσθήκη στο roster
         </Button>
       </Card>
 
       <div className="flex justify-end">
         <Button type="button" variant="secondary" isLoading={isFetching} onClick={() => void refetch()}>
-          Refresh list
+          Ανανέωση λίστας
         </Button>
       </div>
 
       <AdminTable<CompanyDriver>
         data={drivers}
         getRowId={(d) => d.id}
-        emptyMessage="No drivers yet. Add people above — they also appear in the bookings assignment dropdown."
+        emptyMessage="Δεν υπάρχουν οδηγοί. Προσθέστε από πάνω — εμφανίζονται και στο dropdown κρατήσεων."
         columns={columns}
       />
     </div>

@@ -1,6 +1,21 @@
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2'
 import Stripe from 'npm:stripe@16.12.0'
 
+const BRAND_NAME = 'Rhodes Chauffeurs'
+const SITE_URL = 'https://rodoschauffeurs.gr'
+
+function resolveResendFrom(): string {
+  const fallback = `${BRAND_NAME} <onboarding@resend.dev>`
+  const raw = Deno.env.get('RESEND_FROM')?.trim()
+  if (!raw) {
+    return fallback
+  }
+  if (/velox\s*vip|rodos\s*chauffeurs/i.test(raw)) {
+    return raw.replace(/velox\s*vip/gi, BRAND_NAME).replace(/rodos\s*chauffeurs/gi, BRAND_NAME)
+  }
+  return raw
+}
+
 // ---------------------------------------------------------------------------
 // Resend + receipt HTML (inlined: Supabase deploy bundles only index.ts)
 // ---------------------------------------------------------------------------
@@ -20,7 +35,7 @@ function emailLayout(inner: string, preheader: string): string {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Velox VIP</title>
+<title>${escapeHtml(BRAND_NAME)}</title>
 </head>
 <body style="margin:0;background:#0a0a0f;color:#e8e4dc;font-family:Georgia,'Times New Roman',serif;">
 <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(preheader)}</span>
@@ -30,7 +45,7 @@ function emailLayout(inner: string, preheader: string): string {
       <table role="presentation" width="100%" style="max-width:560px;border:1px solid rgba(201,168,76,0.35);border-radius:16px;background:linear-gradient(165deg,rgba(255,255,255,0.06),rgba(10,10,15,0.95));overflow:hidden;">
         <tr>
           <td style="padding:28px 28px 8px 28px;border-bottom:1px solid rgba(201,168,76,0.25);">
-            <p style="margin:0;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:rgba(232,201,122,0.95);">Velox VIP</p>
+            <p style="margin:0;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:rgba(232,201,122,0.95);">${escapeHtml(BRAND_NAME)}</p>
             <p style="margin:8px 0 0 0;font-size:22px;color:#f5f0e6;">Chauffeured excellence</p>
           </td>
         </tr>
@@ -41,7 +56,9 @@ function emailLayout(inner: string, preheader: string): string {
         </tr>
         <tr>
           <td style="padding:0 28px 24px 28px;font-size:11px;color:rgba(245,240,230,0.45);">
-            This message was sent because of activity on your Velox VIP reservation. If you did not expect it, you can ignore this email.
+            This message was sent because of activity on your ${escapeHtml(BRAND_NAME)} reservation. If you did not expect it, you can ignore this email.
+            <br /><br />
+            <a href="${escapeHtml(SITE_URL)}" style="color:rgba(232,201,122,0.95);text-decoration:none;">rodoschauffeurs.gr</a>
           </td>
         </tr>
       </table>
@@ -80,7 +97,7 @@ async function sendResendEmail(params: { to: string; subject: string; html: stri
   if (!apiKey) {
     throw new Error('RESEND_API_KEY is not set')
   }
-  const from = Deno.env.get('RESEND_FROM') ?? 'Velox VIP <onboarding@resend.dev>'
+  const from = resolveResendFrom()
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',

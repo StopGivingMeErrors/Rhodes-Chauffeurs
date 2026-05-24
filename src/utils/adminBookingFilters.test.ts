@@ -35,6 +35,9 @@ function booking(pickupDatetime: string): BookingWithVehicle {
     updatedAt: pickupDatetime,
     vehicleName: null,
     routeTitle: null,
+    clientEmail: null,
+    clientFullName: null,
+    clientPhone: null,
   }
 }
 

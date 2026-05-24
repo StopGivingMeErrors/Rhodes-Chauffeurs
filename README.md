@@ -1,6 +1,8 @@
-# Velox VIP
+# Rhodes Chauffeurs
 
-Private chauffeur booking platform for Rhodes-style VIP transport: fleet catalog, multi-step booking, Stripe Checkout, admin operations, and transactional email.
+Production site: [rodoschauffeurs.gr](https://rodoschauffeurs.gr)
+
+VIP transfers and chauffeur services in Rhodes — fleet catalog, multi-step booking, Stripe Checkout, admin operations, and transactional email.
 
 ## Quick start
 
@@ -35,4 +37,4 @@ npm run dev
 
 ## License
 
-Proprietary — Velox VIP client project.
+Proprietary — Rhodes Chauffeurs client project.

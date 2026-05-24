@@ -103,11 +103,9 @@ export function MyBookingsPanel() {
       return
     }
     didAutoPickSegment.current = true
-    if (upcoming.length > 0) {
-      setSegment('upcoming')
-    } else if (inProgress.length > 0) {
-      setSegment('in_progress')
-    }
+    const next: ClientBookingSegment =
+      upcoming.length > 0 ? 'upcoming' : inProgress.length > 0 ? 'in_progress' : 'upcoming'
+    queueMicrotask(() => setSegment(next))
   }, [userId, isBookingsLoading, bookings.length, upcoming.length, inProgress.length])
 
   const listForSegment = useMemo(() => {

@@ -1,0 +1,12 @@
+# Rhodes Chauffeurs — https://rodoschauffeurs.gr
+
+User-agent: *
+Allow: /
+
+# Private / transactional areas (no SEO value; avoid indexing account flows)
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /confirmation/
+Disallow: /login
+
+# Sitemap: https://rodoschauffeurs.gr/sitemap.xml

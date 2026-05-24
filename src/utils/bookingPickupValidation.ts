@@ -92,7 +92,7 @@ export function snapPickupSchedule(
 
 export function formatSchedulingError(err: unknown): string {
   const msg = err instanceof Error ? err.message : String(err)
-  if (/already reserved|time window/i.test(msg)) {
+  if (/already reserved|time window|another trip/i.test(msg)) {
     return 'That time is no longer available — another trip is already reserved. Pick a different slot or day.'
   }
   if (/already has a trip on that day|one trip per day/i.test(msg)) {

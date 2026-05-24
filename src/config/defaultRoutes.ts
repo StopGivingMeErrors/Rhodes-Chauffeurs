@@ -26,10 +26,10 @@ export const DEFAULT_FIXED_ROUTES: TransportRoute[] = [
   },
   {
     id: 'b1000000-0000-4000-8000-000000000002',
-    title: 'Rodos - port - old city',
+    title: 'Rhodes port — Old Town',
     subtitle: `${LINDOS_NOTE} · 1–4 guests €80 · 5–8 guests €120`,
     pickupAddress: LINDOS_STARTING_BASE,
-    dropoffAddress: 'Rodos port / Rhodes Old Town',
+    dropoffAddress: 'Rhodes port / Rhodes Old Town',
     pickupLat: 36.092,
     pickupLng: 28.0886,
     dropoffLat: 36.4513,

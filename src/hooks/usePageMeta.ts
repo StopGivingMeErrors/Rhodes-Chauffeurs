@@ -1,13 +1,10 @@
 import { useEffect } from 'react'
-import { APP_NAME } from '@/utils/constants'
+import { APP_NAME, DEFAULT_META_DESCRIPTION } from '@/utils/constants'
 
 export type PageMetaInput = {
   title: string
   description?: string
 }
-
-const DEFAULT_DESCRIPTION =
-  'Velox VIP — luxury private chauffeur transportation. Book sedans, SUVs, vans, and sprinters with transparent pricing.'
 
 /**
  * Sets document title and meta description for the current view (client-side SPA).
@@ -26,11 +23,11 @@ export function usePageMeta({ title, description }: PageMetaInput) {
     const previousDescription = meta.getAttribute('content') ?? ''
 
     document.title = `${title} · ${APP_NAME}`
-    meta.setAttribute('content', description ?? DEFAULT_DESCRIPTION)
+    meta.setAttribute('content', description ?? DEFAULT_META_DESCRIPTION)
 
     return () => {
       document.title = previousTitle
-      meta.setAttribute('content', previousDescription || DEFAULT_DESCRIPTION)
+      meta.setAttribute('content', previousDescription || DEFAULT_META_DESCRIPTION)
     }
   }, [title, description])
 }

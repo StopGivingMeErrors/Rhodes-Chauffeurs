@@ -13,7 +13,7 @@ import { LandingFleetShowcase } from '@/components/booking/LandingFleetShowcase'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { usePageMeta } from '@/hooks/usePageMeta'
-import { ROUTES } from '@/utils/constants'
+import { APP_NAME, APP_SITE_HOST, APP_SITE_URL, APP_TAGLINE, ROUTES } from '@/utils/constants'
 
 const steps = [
   {
@@ -44,9 +44,9 @@ const stats = [
 
 export function LandingPage() {
   usePageMeta({
-    title: 'Luxury chauffeur service',
+    title: 'VIP transfers in Rhodes',
     description:
-      'Book Mercedes-Maybach, Range Rover, V-Class, and Sprinter transport with transparent pricing and Stripe checkout.',
+      'Rodhes Chauffeurs — VIP transfers and chauffeur services across Rhodes. Fixed Lindos routes with online payment, or custom itineraries (cash to driver).',
   })
   return (
     <PageWrapper variant="landing">
@@ -61,18 +61,16 @@ export function LandingPage() {
         <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-velox-gold-light/90">
-              Velox VIP
+              {APP_NAME}
             </p>
-            <h1 className="mt-6 font-display text-[clamp(2.5rem,6vw,4.25rem)] font-medium leading-[1.05] tracking-tight text-white">
-              Arrive in Silence.
-              <br />
+            <h1 className="mt-6 font-display text-[clamp(2.25rem,5.5vw,3.75rem)] font-medium leading-[1.08] tracking-tight text-white">
               <span className="bg-gradient-to-r from-velox-gold-light via-velox-gold to-[#8f7535] bg-clip-text text-transparent">
-                Depart in Style.
+                {APP_TAGLINE}
               </span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
-              Discrete chauffeured transport for executives, dignitaries, and guests who expect punctuality,
-              privacy, and a perfectly composed arrival—every time.
+              Private transfers from Rhodes Airport, hotels, and Lindos — punctual chauffeurs, clear pricing on
+              published routes, and calm arrivals for every guest.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Button to={ROUTES.book} size="lg" rightIcon={<ArrowRight className="h-5 w-5" />}>
@@ -177,8 +175,14 @@ export function LandingPage() {
       <footer className="mt-auto border-t border-white/10 bg-velox-void py-14">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-8 px-4 text-center sm:flex-row sm:px-8 sm:text-left lg:px-12">
           <div>
-            <p className="font-display text-lg text-white">Velox VIP</p>
-            <p className="mt-1 text-xs text-velox-muted">Chauffeured excellence · Since inception</p>
+            <p className="font-display text-lg text-white">{APP_NAME}</p>
+            <p className="mt-1 text-xs text-velox-muted">{APP_TAGLINE}</p>
+            <a
+              href={APP_SITE_URL}
+              className="mt-2 inline-block text-xs text-velox-gold-light/90 transition hover:text-velox-gold-light hover:underline"
+            >
+              {APP_SITE_HOST}
+            </a>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-velox-muted">
             <Link className="transition hover:text-white" to={ROUTES.book}>

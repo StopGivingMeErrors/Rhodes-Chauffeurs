@@ -1,22 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { ROUTES } from '@/utils/constants'
 
 const STORAGE_KEY = 'velox_cookie_consent_v1'
 
-export function CookieConsent() {
-  const [visible, setVisible] = useState(false)
+function shouldShowCookieBanner(): boolean {
+  try {
+    return !localStorage.getItem(STORAGE_KEY)
+  } catch {
+    return true
+  }
+}
 
-  useEffect(() => {
-    try {
-      if (!localStorage.getItem(STORAGE_KEY)) {
-        setVisible(true)
-      }
-    } catch {
-      setVisible(true)
-    }
-  }, [])
+export function CookieConsent() {
+  const [visible, setVisible] = useState(shouldShowCookieBanner)
 
   function accept() {
     try {

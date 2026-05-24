@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { Crown } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { useAuth } from '@/hooks/useAuth'
-import { ROUTES } from '@/utils/constants'
+import { APP_NAME, APP_TAGLINE, ROUTES } from '@/utils/constants'
 import { cn } from '@/utils/cn'
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -17,13 +17,15 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-velox-midnight/70 backdrop-blur-xl" role="banner">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
-        <NavLink to={ROUTES.home} className="flex items-center gap-2" aria-label="Velox VIP home">
+        <NavLink to={ROUTES.home} className="flex items-center gap-2" aria-label={`${APP_NAME} home`}>
           <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-velox-gold/40 bg-velox-gold/10 text-velox-gold-light">
             <Crown className="h-5 w-5" aria-hidden />
           </span>
           <div className="text-left leading-tight">
-            <p className="font-display text-lg text-white">Velox VIP</p>
-            <p className="text-xs text-velox-muted">Chauffeured excellence</p>
+            <p className="font-display text-lg text-white">{APP_NAME}</p>
+            <p className="max-w-[11rem] text-[10px] leading-snug text-velox-muted sm:max-w-none sm:text-xs">
+              {APP_TAGLINE}
+            </p>
           </div>
         </NavLink>
 

@@ -68,7 +68,7 @@ function warnSupabaseEnvMissing(): void {
   if (g[SUPABASE_CONFIG_WARN_KEY]) return
   g[SUPABASE_CONFIG_WARN_KEY] = true
   console.warn(
-    '[Velox VIP] Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+    '[Rhodes Chauffeurs] Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
   )
 }
 
@@ -77,7 +77,7 @@ function warnAnonKeyWrongShape(): void {
   if (g[SUPABASE_ANON_SHAPE_WARN_KEY]) return
   g[SUPABASE_ANON_SHAPE_WARN_KEY] = true
   console.error(
-    '[Velox VIP] VITE_SUPABASE_ANON_KEY must be the browser-safe public key from Supabase (Dashboard → Project Settings → API): either the new "Publishable" key (starts with sb_publishable_) or the legacy "anon" "public" JWT (starts with eyJ, three dot-separated parts). Do not use the project ref, "Secret" / sb_secret_*, or legacy service_role.',
+    '[Rhodes Chauffeurs] VITE_SUPABASE_ANON_KEY must be the browser-safe public key from Supabase (Dashboard → Project Settings → API): either the new "Publishable" key (starts with sb_publishable_) or the legacy "anon" "public" JWT (starts with eyJ, three dot-separated parts). Do not use the project ref, "Secret" / sb_secret_*, or legacy service_role.',
   )
 }
 

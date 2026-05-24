@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { usePageMeta } from '@/hooks/usePageMeta'
-import { APP_NAME, ROUTES } from '@/utils/constants'
+import { APP_NAME, APP_SITE_URL, ROUTES } from '@/utils/constants'
 
 export function TermsPage() {
-  usePageMeta({ title: `Terms of Service · ${APP_NAME}` })
+  usePageMeta({ title: 'Terms of Service' })
 
   return (
     <PageWrapper>
@@ -17,7 +17,12 @@ export function TermsPage() {
           <section>
             <h2 className="font-display text-lg text-white">Bookings</h2>
             <p className="mt-2">
-              A reservation is confirmed when accepted by {APP_NAME} operations and, where applicable, payment is completed.
+              Services are offered through {APP_NAME} at{' '}
+              <a href={APP_SITE_URL} className="text-velox-gold-light hover:underline">
+                rodoschauffeurs.gr
+              </a>
+              . A reservation is confirmed when accepted by {APP_NAME} operations and, where applicable, payment is
+              completed.
               You must provide accurate pickup details and arrive on time. Waiting time may incur additional charges per our
               rate card.
             </p>

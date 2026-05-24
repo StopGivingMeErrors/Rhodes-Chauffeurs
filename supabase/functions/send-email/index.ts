@@ -1,7 +1,23 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
+const BRAND_NAME = 'Rhodes Chauffeurs'
+const SITE_URL = 'https://rodoschauffeurs.gr'
+
+/** Resend "from" display name — rewrites legacy display names in RESEND_FROM secret. */
+function resolveResendFrom(): string {
+  const fallback = `${BRAND_NAME} <onboarding@resend.dev>`
+  const raw = Deno.env.get('RESEND_FROM')?.trim()
+  if (!raw) {
+    return fallback
+  }
+  if (/velox\s*vip|rodos\s*chauffeurs/i.test(raw)) {
+    return raw.replace(/velox\s*vip/gi, BRAND_NAME).replace(/rodos\s*chauffeurs/gi, BRAND_NAME)
+  }
+  return raw
+}
+
 // ---------------------------------------------------------------------------
-// Resend + HTML (Velox VIP client notifications)
+// Resend + HTML (Rhodes Chauffeurs client notifications)
 // ---------------------------------------------------------------------------
 // Two entry points:
 // 1) Database webhook: Authorization: Bearer BOOKING_EMAIL_WEBHOOK_SECRET, body = Supabase webhook payload
@@ -23,7 +39,7 @@ function emailLayout(inner: string, preheader: string): string {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Velox VIP</title>
+<title>${escapeHtml(BRAND_NAME)}</title>
 </head>
 <body style="margin:0;background:#0a0a0f;color:#e8e4dc;font-family:Georgia,'Times New Roman',serif;">
 <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(preheader)}</span>
@@ -33,7 +49,7 @@ function emailLayout(inner: string, preheader: string): string {
       <table role="presentation" width="100%" style="max-width:560px;border:1px solid rgba(201,168,76,0.35);border-radius:16px;background:linear-gradient(165deg,rgba(255,255,255,0.06),rgba(10,10,15,0.95));overflow:hidden;">
         <tr>
           <td style="padding:28px 28px 8px 28px;border-bottom:1px solid rgba(201,168,76,0.25);">
-            <p style="margin:0;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:rgba(232,201,122,0.95);">Velox VIP</p>
+            <p style="margin:0;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:rgba(232,201,122,0.95);">${escapeHtml(BRAND_NAME)}</p>
             <p style="margin:8px 0 0 0;font-size:22px;color:#f5f0e6;">Your ride is confirmed</p>
           </td>
         </tr>
@@ -44,7 +60,9 @@ function emailLayout(inner: string, preheader: string): string {
         </tr>
         <tr>
           <td style="padding:0 28px 24px 28px;font-size:11px;color:rgba(245,240,230,0.45);">
-            This message was sent because your Velox VIP reservation was updated. If you did not expect it, contact support.
+            This message was sent because your ${escapeHtml(BRAND_NAME)} reservation was updated. If you did not expect it, contact support.
+            <br /><br />
+            <a href="${escapeHtml(SITE_URL)}" style="color:rgba(232,201,122,0.95);text-decoration:none;">rodoschauffeurs.gr</a>
           </td>
         </tr>
       </table>
@@ -64,13 +82,13 @@ function buildBookingCancelledHtml(data: {
   const preheader = `Your reservation ${data.reference} has been cancelled.`
   const inner = `
     <p style="margin:0 0 16px 0;font-size:18px;color:#e8c97a;">We are sorry</p>
-    <p style="margin:0 0 20px 0;">We had to cancel your Velox VIP reservation. If you have already been charged, our team will follow up regarding any refund according to your booking terms.</p>
+    <p style="margin:0 0 20px 0;">We had to cancel your ${escapeHtml(BRAND_NAME)} reservation. If you have already been charged, our team will follow up regarding any refund according to your booking terms.</p>
     <table role="presentation" width="100%" style="border-collapse:collapse;font-size:14px;">
       <tr><td style="padding:8px 0;color:rgba(245,240,230,0.55);width:38%;">Reference</td><td style="padding:8px 0;color:#f5f0e6;font-weight:600;">${escapeHtml(data.reference)}</td></tr>
       <tr><td style="padding:8px 0;color:rgba(245,240,230,0.55);">Scheduled pickup</td><td style="padding:8px 0;">${escapeHtml(data.pickupLabel)}</td></tr>
       <tr><td style="padding:8px 0;color:rgba(245,240,230,0.55);vertical-align:top;">Route</td><td style="padding:8px 0;">${escapeHtml(data.pickupAddress)} → ${escapeHtml(data.dropoffAddress)}</td></tr>
     </table>
-    <p style="margin:24px 0 0 0;font-size:14px;color:rgba(245,240,230,0.78);">Questions? Reply to this email or contact concierge through your Velox VIP account.</p>
+    <p style="margin:24px 0 0 0;font-size:14px;color:rgba(245,240,230,0.78);">Questions? Reply to this email or contact concierge through your ${escapeHtml(BRAND_NAME)} account.</p>
   `
   return {
     subject: `Reservation cancelled · ${data.reference}`,
@@ -93,7 +111,7 @@ function buildAdminNewBookingHtml(data: {
   const preheader = `New reservation ${data.reference} — ${data.pickupLabel}`
   const inner = `
     <p style="margin:0 0 16px 0;font-size:18px;color:#e8c97a;">New guest reservation</p>
-    <p style="margin:0 0 20px 0;">A client just submitted a booking through Velox VIP. Review it in the admin command center.</p>
+    <p style="margin:0 0 20px 0;">A client just submitted a booking through ${escapeHtml(BRAND_NAME)}. Review it in the admin command center.</p>
     <table role="presentation" width="100%" style="border-collapse:collapse;font-size:14px;">
       <tr><td style="padding:8px 0;color:rgba(245,240,230,0.55);width:38%;">Reference</td><td style="padding:8px 0;color:#f5f0e6;font-weight:600;">${escapeHtml(data.reference)}</td></tr>
       <tr><td style="padding:8px 0;color:rgba(245,240,230,0.55);">Guest</td><td style="padding:8px 0;">${escapeHtml(data.clientName)} · ${escapeHtml(data.clientEmail)}</td></tr>
@@ -138,7 +156,7 @@ function buildRideConfirmedByTeamHtml(data: {
       <tr><td style="padding:8px 0;color:rgba(245,240,230,0.55);">Chauffeur</td><td style="padding:8px 0;font-weight:600;color:#f5f0e6;">${escapeHtml(data.driverName)}</td></tr>
       ${phoneLine}
     </table>
-    <p style="margin:24px 0 0 0;font-size:14px;color:rgba(245,240,230,0.78);">If anything changes, reply to your concierge or manage the trip from your Velox VIP account.</p>
+    <p style="margin:24px 0 0 0;font-size:14px;color:rgba(245,240,230,0.78);">If anything changes, reply to your concierge or manage the trip from your ${escapeHtml(BRAND_NAME)} account.</p>
   `
   return {
     subject: `Your ride is confirmed · ${data.reference}`,
@@ -154,8 +172,7 @@ function requireResendConfig(): { apiKey: string; from: string } {
       'RESEND_API_KEY is not set on this project. Add it under Supabase → Edge Functions → Secrets, then redeploy send-email.',
     )
   }
-  const from = Deno.env.get('RESEND_FROM')?.trim() || 'Velox VIP <onboarding@resend.dev>'
-  return { apiKey, from }
+  return { apiKey, from: resolveResendFrom() }
 }
 
 async function sendResendEmail(params: { to: string | string[]; subject: string; html: string }): Promise<void> {

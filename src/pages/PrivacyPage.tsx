@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { usePageMeta } from '@/hooks/usePageMeta'
-import { APP_NAME, ROUTES } from '@/utils/constants'
+import { APP_NAME, APP_SITE_URL, ROUTES } from '@/utils/constants'
 
 export function PrivacyPage() {
-  usePageMeta({ title: `Privacy Policy · ${APP_NAME}` })
+  usePageMeta({ title: 'Privacy Policy' })
 
   return (
     <PageWrapper>
@@ -17,8 +17,12 @@ export function PrivacyPage() {
           <section>
             <h2 className="font-display text-lg text-white">Who we are</h2>
             <p className="mt-2">
-              {APP_NAME} operates this booking platform for chauffeured transport. We process personal data as a data
-              controller when you create an account, make a reservation, or contact us.
+              {APP_NAME} operates this booking platform for chauffeured transport at{' '}
+              <a href={APP_SITE_URL} className="text-velox-gold-light hover:underline">
+                rodoschauffeurs.gr
+              </a>
+              . We process personal data as a data controller when you create an account, make a reservation, or
+              contact us.
             </p>
           </section>
           <section>

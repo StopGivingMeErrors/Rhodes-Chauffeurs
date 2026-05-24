@@ -2,7 +2,13 @@ import { FunctionsHttpError } from '@supabase/supabase-js'
 import { assertSupabaseConfigured, supabase, supabaseAnon } from '@/services/supabase'
 import type { AssignedDriver, Booking, BookingDraft, BookingWithVehicle } from '@/types/booking'
 import type { Vehicle, VehicleInput } from '@/types/vehicle'
+import { ACTIVE_BOOKING_STATUSES } from '@/utils/adminBookingStatus'
 import { formatSchedulingError } from '@/utils/bookingPickupValidation'
+import {
+  DEFAULT_SERVICE_DURATION_MINUTES,
+  findSchedulingConflict,
+  type BookingWindowRow,
+} from '@/utils/bookingSchedule'
 import { assertDraftPersistable, formatPostgrestError } from '@/utils/bookingValidation'
 import {
   bookingStatusTransitionError,
@@ -187,6 +193,115 @@ async function vehicleNameMapForIds(vehicleIds: string[]): Promise<Record<string
   return map
 }
 
+async function clientProfileMapForIds(
+  clientIds: string[],
+): Promise<Record<string, { email: string; fullName: string | null; phone: string | null }>> {
+  const unique = [...new Set(clientIds.filter(Boolean))]
+  if (unique.length === 0) {
+    return {}
+  }
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, email, full_name, phone')
+    .in('id', unique)
+  if (error) {
+    console.warn('[bookings] client profile lookup failed', error)
+    return {}
+  }
+  const map: Record<string, { email: string; fullName: string | null; phone: string | null }> = {}
+  for (const row of data ?? []) {
+    const r = row as { id?: string; email?: string; full_name?: string | null; phone?: string | null }
+    if (r.id && typeof r.email === 'string' && r.email.trim()) {
+      map[r.id] = {
+        email: r.email.trim(),
+        fullName: typeof r.full_name === 'string' && r.full_name.trim() ? r.full_name.trim() : null,
+        phone: typeof r.phone === 'string' && r.phone.trim() ? r.phone.trim() : null,
+      }
+    }
+  }
+  return map
+}
+
+async function assertNoFleetSchedulingConflict(
+  pickupDatetime: string,
+  serviceDurationMinutes: number,
+  excludeBookingId?: string,
+): Promise<void> {
+  const duration =
+    Number.isFinite(serviceDurationMinutes) && serviceDurationMinutes > 0
+      ? serviceDurationMinutes
+      : DEFAULT_SERVICE_DURATION_MINUTES
+  const pickupMs = Date.parse(pickupDatetime)
+  if (Number.isNaN(pickupMs)) {
+    throw new Error('Pickup date and time are invalid.')
+  }
+  const bufferStart = new Date(
+    pickupMs - DEFAULT_SERVICE_DURATION_MINUTES * 60_000,
+  ).toISOString()
+  const bufferEnd = new Date(
+    pickupMs + duration * 60_000 + DEFAULT_SERVICE_DURATION_MINUTES * 60_000,
+  ).toISOString()
+
+  let query = supabase
+    .from('bookings')
+    .select('id, pickup_datetime, service_duration_minutes')
+    .in('status', ACTIVE_BOOKING_STATUSES)
+    .gte('pickup_datetime', bufferStart)
+    .lte('pickup_datetime', bufferEnd)
+
+  if (excludeBookingId) {
+    query = query.neq('id', excludeBookingId)
+  }
+
+  const { data, error } = await query
+  if (error) {
+    throw new Error(formatPostgrestError(error))
+  }
+
+  const rows: BookingWindowRow[] = (data ?? []).map((row) => {
+    const r = row as {
+      pickup_datetime?: string
+      service_duration_minutes?: number | null
+    }
+    return {
+      pickupDatetime: String(r.pickup_datetime ?? ''),
+      serviceDurationMinutes: r.service_duration_minutes,
+    }
+  })
+  if (findSchedulingConflict(pickupDatetime, duration, rows)) {
+    throw new Error(
+      formatSchedulingError(new Error('Another trip is already reserved in this time window')),
+    )
+  }
+}
+
+async function assertNoDuplicateActiveBooking(
+  clientId: string,
+  pickupDatetime: string,
+  excludeBookingId?: string,
+): Promise<void> {
+  let query = supabase
+    .from('bookings')
+    .select('id')
+    .eq('client_id', clientId)
+    .eq('pickup_datetime', pickupDatetime)
+    .in('status', ACTIVE_BOOKING_STATUSES)
+
+  if (excludeBookingId) {
+    query = query.neq('id', excludeBookingId)
+  }
+
+  const { data, error } = await query.maybeSingle()
+  if (error) {
+    throw new Error(formatPostgrestError(error))
+  }
+  if (data?.id) {
+    throw new Error(
+      'You already have an active reservation for this pickup time. Open it from your dashboard or choose a different schedule.',
+    )
+  }
+}
+
 async function driverMapForIds(driverIds: string[]): Promise<Record<string, AssignedDriver>> {
   const unique = [...new Set(driverIds.filter(Boolean))]
   if (unique.length === 0) {
@@ -218,6 +333,7 @@ function attachBookingListMeta(
   nameByVehicleId: Record<string, string>,
   titleByRouteId: Record<string, string>,
   driverById: Record<string, AssignedDriver>,
+  clientById: Record<string, { email: string; fullName: string | null; phone: string | null }>,
 ): BookingWithVehicle[] {
   return rows.map((row) => {
     const vid = row.vehicle_id
@@ -234,6 +350,10 @@ function attachBookingListMeta(
     if (did && driverById[did]) {
       booking.driver = driverById[did]
     }
+    const client = clientById[row.client_id]
+    booking.clientEmail = client?.email ?? null
+    booking.clientFullName = client?.fullName ?? null
+    booking.clientPhone = client?.phone ?? null
     return booking
   })
 }
@@ -264,7 +384,8 @@ export async function listBookingsForUser(userId: string): Promise<BookingWithVe
   const nameMap = await vehicleNameMapForIds(rows.map((r) => r.vehicle_id).filter((x): x is string => Boolean(x)))
   const driverMap = await driverMapForIds(rows.map((r) => r.driver_id).filter((x): x is string => Boolean(x)))
   const routeMap = await routeTitleMapForIds(rows.map((r) => r.route_id).filter((x): x is string => Boolean(x)))
-  return attachBookingListMeta(rows, nameMap, routeMap, driverMap)
+  const clientMap = await clientProfileMapForIds(rows.map((r) => r.client_id))
+  return attachBookingListMeta(rows, nameMap, routeMap, driverMap, clientMap)
 }
 
 export async function listAllBookingsAdmin(): Promise<BookingWithVehicle[]> {
@@ -283,7 +404,8 @@ export async function listAllBookingsAdmin(): Promise<BookingWithVehicle[]> {
   const rows = (data ?? []) as BookingRow[]
   const nameMap = await vehicleNameMapForIds(rows.map((r) => r.vehicle_id).filter((x): x is string => Boolean(x)))
   const routeMap = await routeTitleMapForIds(rows.map((r) => r.route_id).filter((x): x is string => Boolean(x)))
-  return attachBookingListMeta(rows, nameMap, routeMap, {})
+  const clientMap = await clientProfileMapForIds(rows.map((r) => r.client_id))
+  return attachBookingListMeta(rows, nameMap, routeMap, {}, clientMap)
 }
 
 export async function getBookingById(id: string): Promise<Booking | null> {
@@ -312,19 +434,11 @@ export async function createBooking(userId: string, draft: BookingDraft): Promis
   assertDraftPersistable(draft)
   await ensureClientProfileRow(userId)
 
-  const { data: duplicatePending } = await supabase
-    .from('bookings')
-    .select('id')
-    .eq('client_id', userId)
-    .eq('status', 'pending')
-    .eq('pickup_datetime', draft.pickupDatetime)
-    .maybeSingle()
-
-  if (duplicatePending?.id) {
-    throw new Error(
-      'You already have a pending reservation for this pickup time. Open it from your dashboard or choose a different schedule.',
-    )
-  }
+  await assertNoDuplicateActiveBooking(userId, draft.pickupDatetime)
+  await assertNoFleetSchedulingConflict(
+    draft.pickupDatetime,
+    draft.serviceDurationMinutes ?? DEFAULT_SERVICE_DURATION_MINUTES,
+  )
 
   const vehicleId = await resolveDefaultVehicleId()
 
@@ -370,6 +484,22 @@ export async function createBooking(userId: string, draft: BookingDraft): Promis
 export async function updatePendingBooking(id: string, draft: BookingDraft): Promise<Booking> {
   assertSupabaseConfigured()
   assertDraftPersistable(draft)
+
+  const existing = await getBookingById(id)
+  if (!existing) {
+    throw new Error('Booking not found.')
+  }
+  if (existing.status !== 'pending') {
+    throw new Error(
+      'This reservation is no longer in draft (it may already be paid and confirmed). Refresh the page or open it from your dashboard.',
+    )
+  }
+  await assertNoDuplicateActiveBooking(existing.clientId, draft.pickupDatetime, id)
+  await assertNoFleetSchedulingConflict(
+    draft.pickupDatetime,
+    draft.serviceDurationMinutes ?? existing.serviceDurationMinutes ?? DEFAULT_SERVICE_DURATION_MINUTES,
+    id,
+  )
 
   const payload: Record<string, unknown> = {
     booking_type: draft.bookingType,
@@ -540,6 +670,50 @@ export async function assignBookingDriver(bookingId: string, driverId: string | 
 
   if (error) {
     throw error
+  }
+  if (!data) {
+    throw new Error('Booking not found or update not allowed.')
+  }
+
+  return mapBookingRow(data as BookingRow)
+}
+
+export async function assignBookingVehicle(bookingId: string, vehicleId: string | null): Promise<Booking> {
+  assertSupabaseConfigured()
+  const booking = await getBookingById(bookingId)
+  if (!booking) {
+    throw new Error('Booking not found')
+  }
+  if (!isBookingMutableForAssignment(booking.status)) {
+    throw new Error(
+      booking.status === 'cancelled'
+        ? 'Cannot change vehicle on a cancelled reservation.'
+        : 'Cannot change vehicle on a completed reservation.',
+    )
+  }
+  if (vehicleId) {
+    const { data: vehicle, error: vehicleErr } = await supabase
+      .from('vehicles')
+      .select('id')
+      .eq('id', vehicleId)
+      .maybeSingle()
+    if (vehicleErr) {
+      throw new Error(formatPostgrestError(vehicleErr))
+    }
+    if (!vehicle) {
+      throw new Error('Vehicle not found.')
+    }
+  }
+
+  const { data, error } = await supabase
+    .from('bookings')
+    .update({ vehicle_id: vehicleId, updated_at: new Date().toISOString() })
+    .eq('id', bookingId)
+    .select('*')
+    .maybeSingle()
+
+  if (error) {
+    throw new Error(formatSchedulingError(new Error(formatPostgrestError(error))))
   }
   if (!data) {
     throw new Error('Booking not found or update not allowed.')
@@ -762,6 +936,9 @@ function mapBookingRowWithVehicle(row: BookingRowWithVehicle): BookingWithVehicl
     ...mapBookingRow(row),
     vehicleName: vehicleNameFromRow(row),
     routeTitle: routeTitleFromRow(row),
+    clientEmail: null,
+    clientFullName: null,
+    clientPhone: null,
   }
 }
 

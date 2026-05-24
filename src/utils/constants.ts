@@ -1,6 +1,14 @@
 /** App-wide constants — no secrets (use import.meta.env for configuration). */
 
-export const APP_NAME = 'Velox VIP'
+export const APP_NAME = 'Rhodes Chauffeurs'
+
+/** Production site (domain uses “rodos”; brand copy uses “Rhodes”). */
+export const APP_SITE_HOST = 'rodoschauffeurs.gr'
+export const APP_SITE_URL = `https://${APP_SITE_HOST}`
+
+export const APP_TAGLINE = 'VIP Transfers & Chauffeur Services in Rhodes'
+
+export const DEFAULT_META_DESCRIPTION = `${APP_NAME} — ${APP_TAGLINE}. Book fixed routes online with secure card payment, or request a custom itinerary (cash to your chauffeur).`
 
 export const ROUTES = {
   home: '/',

@@ -36,7 +36,7 @@ export function VehicleImageDropzone({
         const url = await uploadVehicleImage(file, vehicleId)
         onUploaded(url)
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Upload failed.')
+        setError(e instanceof Error ? e.message : 'Η μεταφόρτωση απέτυχε.')
       } finally {
         setUploading(false)
       }
@@ -58,7 +58,7 @@ export function VehicleImageDropzone({
 
   return (
     <div className={cn('space-y-2', className)}>
-      <span className="text-xs font-medium uppercase tracking-wide text-velox-muted">Photo</span>
+      <span className="text-xs font-medium uppercase tracking-wide text-velox-muted">Φωτογραφία</span>
       <div
         role="button"
         tabIndex={disabled || uploading ? -1 : 0}
@@ -93,13 +93,13 @@ export function VehicleImageDropzone({
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-2 px-4 text-center">
             <ImagePlus className="h-8 w-8 text-velox-gold-light/80" aria-hidden />
-            <p className="text-xs text-white/55">Drag &amp; drop a photo here, or click to browse</p>
+            <p className="text-xs text-white/55">Σύρετε φωτογραφία εδώ ή κάντε κλικ για αρχείο</p>
           </div>
         )}
         {uploading ? (
           <div className="absolute inset-0 flex items-center justify-center bg-black/55">
             <Loader2 className="h-8 w-8 animate-spin text-velox-gold-light" aria-hidden />
-            <span className="sr-only">Uploading</span>
+            <span className="sr-only">Μεταφόρτωση</span>
           </div>
         ) : null}
       </div>
@@ -117,7 +117,7 @@ export function VehicleImageDropzone({
           e.target.value = ''
         }}
       />
-      <p className="text-[11px] text-velox-muted">JPEG, PNG, or WebP · max 5 MB · shown on the landing page</p>
+      <p className="text-[11px] text-velox-muted">JPEG, PNG ή WebP · έως 5 MB · εμφάνιση στην αρχική</p>
       {error ? <p className="text-xs text-red-200">{error}</p> : null}
     </div>
   )

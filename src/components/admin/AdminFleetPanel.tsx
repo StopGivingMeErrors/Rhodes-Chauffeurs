@@ -44,16 +44,16 @@ function FleetVehicleCard({
       </div>
       <div className="space-y-4 p-5 pt-2">
         <div className="flex items-center justify-between gap-3">
-          <span className="text-sm text-white/80">Show on landing page</span>
+          <span className="text-sm text-white/80">Εμφάνιση στην αρχική</span>
           <Switch
             checked={vehicle.available}
             disabled={busy}
-            aria-label={`Show ${vehicle.name} on landing page`}
+            aria-label={`Εμφάνιση ${vehicle.name} στην αρχική`}
             onCheckedChange={(checked) => onPatch({ available: checked })}
           />
         </div>
         <Input
-          label="Title"
+          label="Τίτλος"
           value={name}
           disabled={busy}
           onChange={(e) => setName(e.target.value)}
@@ -65,7 +65,7 @@ function FleetVehicleCard({
           }}
         />
         <label className="block space-y-1.5 text-left">
-          <span className="text-xs font-medium uppercase tracking-wide text-velox-muted">Description</span>
+          <span className="text-xs font-medium uppercase tracking-wide text-velox-muted">Περιγραφή</span>
           <textarea
             className={cn(textareaClass, 'min-h-[88px] resize-y')}
             rows={3}
@@ -81,7 +81,7 @@ function FleetVehicleCard({
           />
         </label>
         <Input
-          label="Display order"
+          label="Σειρά εμφάνισης"
           type="number"
           value={sortOrder}
           disabled={busy}
@@ -97,7 +97,7 @@ function FleetVehicleCard({
             }
           }}
         />
-        <p className="text-[11px] text-velox-muted">Lower numbers appear first on the landing page.</p>
+        <p className="text-[11px] text-velox-muted">Μικρότεροι αριθμοί εμφανίζονται πρώτοι στην αρχική.</p>
         <Button
           type="button"
           variant="danger"
@@ -107,7 +107,7 @@ function FleetVehicleCard({
           leftIcon={<Trash2 className="h-4 w-4" />}
           onClick={onDelete}
         >
-          Remove card
+          Αφαίρεση κάρτας
         </Button>
       </div>
     </Card>
@@ -153,12 +153,12 @@ export function AdminFleetPanel() {
       }
       toast({
         variant: 'error',
-        title: 'Update failed',
+        title: 'Η ενημέρωση απέτυχε',
         description: err instanceof Error ? err.message : undefined,
       })
     },
     onSuccess: () => {
-      toast({ variant: 'success', title: 'Card updated' })
+      toast({ variant: 'success', title: 'Η κάρτα ενημερώθηκε' })
     },
     onSettled: invalidateFleet,
   })
@@ -170,13 +170,13 @@ export function AdminFleetPanel() {
       setTitle('')
       setDescription('')
       setImageUrl('')
-      toast({ variant: 'success', title: 'Vehicle card added to landing page' })
+      toast({ variant: 'success', title: 'Προστέθηκε κάρτα στην αρχική' })
       invalidateFleet()
     },
     onError: (err) => {
       toast({
         variant: 'error',
-        title: 'Could not add card',
+        title: 'Δεν προστέθηκε κάρτα',
         description: err instanceof Error ? err.message : undefined,
       })
     },
@@ -186,13 +186,13 @@ export function AdminFleetPanel() {
     retry: 0,
     mutationFn: (id: string) => deleteVehicleAdmin(id),
     onSuccess: () => {
-      toast({ variant: 'success', title: 'Card removed' })
+      toast({ variant: 'success', title: 'Η κάρτα αφαιρέθηκε' })
       invalidateFleet()
     },
     onError: (err) => {
       toast({
         variant: 'error',
-        title: 'Could not remove card',
+        title: 'Δεν αφαιρέθηκε η κάρτα',
         description: err instanceof Error ? err.message : undefined,
       })
     },
@@ -201,11 +201,11 @@ export function AdminFleetPanel() {
   function handleCreate() {
     const trimmedTitle = title.trim()
     if (!trimmedTitle) {
-      toast({ variant: 'error', title: 'Enter a title for the vehicle' })
+      toast({ variant: 'error', title: 'Εισάγετε τίτλο οχήματος' })
       return
     }
     if (!imageUrl.trim()) {
-      toast({ variant: 'error', title: 'Drop a photo for this vehicle' })
+      toast({ variant: 'error', title: 'Προσθέστε φωτογραφία' })
       return
     }
     createMutation.mutate({
@@ -220,15 +220,15 @@ export function AdminFleetPanel() {
   if (isLoading) {
     return (
       <div className="flex min-h-[200px] items-center justify-center">
-        <Spinner label="Loading vehicle cards" />
+        <Spinner label="Φόρτωση καρτών οχημάτων" />
       </div>
     )
   }
 
   if (error) {
     return (
-      <Card title="Landing page vehicles">
-        <p className="text-sm text-red-200">{error instanceof Error ? error.message : 'Error'}</p>
+      <Card title="Οχήματα αρχικής">
+        <p className="text-sm text-red-200">{error instanceof Error ? error.message : 'Σφάλμα'}</p>
       </Card>
     )
   }
@@ -236,25 +236,24 @@ export function AdminFleetPanel() {
   return (
     <div className="space-y-8">
       <p className="text-sm text-velox-muted">
-        Cards here appear on the <span className="text-white/80">homepage</span>. Drag a photo onto each card — no
-        URL needed. With one vehicle you will see &ldquo;Available now:&rdquo; above it; a second card appears in a
-        grid. Trip prices are under Routes &amp; pricing.
+        Οι κάρτες εμφανίζονται στην <span className="text-white/80">αρχική σελίδα</span>. Σύρετε φωτογραφία — χωρίς URL.
+        Οι τιμές δρομολογίων είναι στις Διαδρομές &amp; τιμές.
       </p>
 
-      <Card title="Add vehicle card" description="Title, description, and a photo (drag & drop or click to browse).">
+      <Card title="Νέα κάρτα οχήματος" description="Τίτλος, περιγραφή και φωτογραφία (σύρετε ή επιλέξτε αρχείο).">
         <div className="grid gap-3">
           <Input
-            label="Title"
-            placeholder="e.g. Mercedes V-Class VIP"
+            label="Τίτλος"
+            placeholder="π.χ. Mercedes V-Class VIP"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
           <label className="block space-y-1.5 text-left">
-            <span className="text-xs font-medium uppercase tracking-wide text-velox-muted">Description</span>
+            <span className="text-xs font-medium uppercase tracking-wide text-velox-muted">Περιγραφή</span>
             <textarea
               className={cn(textareaClass, 'min-h-[100px] resize-y')}
               rows={4}
-              placeholder="A few lines about comfort, luggage, and who this vehicle suits…"
+              placeholder="Λίγες γραμμές για άνεση, αποσκευές, τύπο ταξιδιού…"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -268,14 +267,14 @@ export function AdminFleetPanel() {
           isLoading={createMutation.isPending}
           onClick={handleCreate}
         >
-          Add to landing page
+          Προσθήκη στην αρχική
         </Button>
       </Card>
 
       <div className={cn('grid gap-6', vehicles.length ? 'md:grid-cols-2 xl:grid-cols-3' : '')}>
         {vehicles.length === 0 ? (
-          <Card title="No cards yet">
-            <p className="text-sm text-velox-muted">Add your first vehicle above — it will show on the landing page.</p>
+          <Card title="Δεν υπάρχουν κάρτες">
+            <p className="text-sm text-velox-muted">Προσθέστε το πρώτο όχημα από πάνω — θα εμφανιστεί στην αρχική.</p>
           </Card>
         ) : (
           vehicles.map((v) => (
@@ -288,7 +287,7 @@ export function AdminFleetPanel() {
               }
               onPatch={(patch) => patchMutation.mutate({ id: v.id, patch })}
               onDelete={() => {
-                if (window.confirm(`Remove "${v.name}" from the landing page?`)) {
+                if (window.confirm(`Αφαίρεση της κάρτας «${v.name}» από την αρχική;`)) {
                   deleteMutation.mutate(v.id)
                 }
               }}

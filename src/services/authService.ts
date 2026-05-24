@@ -1,4 +1,4 @@
-import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js'
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import { supabase, assertSupabaseConfigured, isSupabaseConfigured } from '@/services/supabase'
 import type { UserProfile } from '@/types/user'
 import { ROUTES } from '@/utils/constants'
@@ -39,11 +39,32 @@ function authEmailRedirectTo(nextPath?: string | null): string | undefined {
 /** One-shot message after email-confirm redirect (read on login page, then cleared). */
 export const AUTH_REDIRECT_FLASH_KEY = 'velox-vip-auth-redirect-flash'
 
+export function isPkceVerifierMissingError(err: unknown): boolean {
+  const msg =
+    err && typeof err === 'object' && typeof (err as { message?: string }).message === 'string'
+      ? (err as { message: string }).message
+      : err instanceof Error
+        ? err.message
+        : String(err)
+  return /pkce|code verifier not found/i.test(msg)
+}
+
+/** User-facing message after email-confirm redirect (maps benign PKCE storage misses). */
+export function emailConfirmRedirectFlashMessage(err: unknown): string {
+  if (isPkceVerifierMissingError(err)) {
+    return 'Your email is confirmed. Sign in with the password you created when registering.'
+  }
+  return formatAuthError(err)
+}
+
 export function formatAuthError(err: unknown): string {
   if (err && typeof err === 'object') {
     const o = err as { status?: number; message?: string }
     const msg = typeof o.message === 'string' ? o.message : ''
     const lower = msg.toLowerCase()
+    if (isPkceVerifierMissingError(err)) {
+      return emailConfirmRedirectFlashMessage(err)
+    }
     if (
       o.status === 429 ||
       lower.includes('rate limit') ||
@@ -59,6 +80,14 @@ export function formatAuthError(err: unknown): string {
     return err.message
   }
   return 'Something went wrong.'
+}
+
+function storeAuthRedirectFlash(err: unknown): void {
+  try {
+    sessionStorage.setItem(AUTH_REDIRECT_FLASH_KEY, emailConfirmRedirectFlashMessage(err))
+  } catch {
+    /* ignore quota / private mode */
+  }
 }
 
 /** OAuth / magic-link params to remove from the URL after a failed or stale redirect (keep `next`, etc.). */
@@ -131,10 +160,9 @@ async function ensureAuthClientInitialized(): Promise<void> {
   if (initError) {
     if (hadAuthCallback) {
       stripAllSupabaseAuthCallbackFromUrl()
-      try {
-        sessionStorage.setItem(AUTH_REDIRECT_FLASH_KEY, formatAuthError(initError))
-      } catch {
-        /* ignore */
+      storeAuthRedirectFlash(initError)
+      if (!isPkceVerifierMissingError(initError)) {
+        console.warn('[auth] Supabase auth.initialize()', initError.message)
       }
     } else {
       console.warn('[auth] Supabase auth.initialize()', initError.message)
@@ -218,9 +246,9 @@ function stripAuthKeysFromBrowserUrl(keys: string[]) {
 }
 
 /**
- * PKCE-style `?code=…` without a stored verifier (e.g. email opened on another device)
- * cannot be exchanged when the client uses `flowType: 'pkce'`. `token_hash` + verifyOtp
- * still works below. Same-browser PKCE is handled by `auth.initialize()`.
+ * PKCE `?code=…` from the confirmation email. Must not call signOut before exchange —
+ * local sign-out wipes the PKCE code_verifier from storage and causes a false error even when
+ * the address was verified server-side. `token_hash` links are handled in tryConsumeEmailConfirmationFromUrl.
  */
 async function tryConsumeAuthCodeFromUrl(): Promise<boolean> {
   if (typeof window === 'undefined') {
@@ -234,19 +262,33 @@ async function tryConsumeAuthCodeFromUrl(): Promise<boolean> {
 
   const stripKeys = ['code', 'type', 'error', 'error_description', 'error_code']
 
-  // A stored session from another account must not block exchanging this redirect code.
-  await supabase.auth.signOut({ scope: 'local' })
-
-  const { error } = await supabase.auth.exchangeCodeForSession(code)
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
   stripAuthKeysFromBrowserUrl(stripKeys)
 
   if (error) {
     console.warn('[auth] exchangeCodeForSession from redirect URL failed', error)
-    try {
-      sessionStorage.setItem(AUTH_REDIRECT_FLASH_KEY, formatAuthError(error))
-    } catch {
-      /* ignore quota / private mode */
+    storeAuthRedirectFlash(error)
+  } else if (data.session?.user) {
+    const meta = data.session.user.user_metadata as Record<string, unknown> | undefined
+    const fullName =
+      typeof meta?.full_name === 'string' && meta.full_name.trim()
+        ? meta.full_name.trim()
+        : data.session.user.email?.split('@')[0] ?? 'Guest'
+    const phone =
+      typeof meta?.phone === 'string' && meta.phone.trim() ? meta.phone.trim() : null
+    const { error: profileError } = await supabase.from('profiles').upsert(
+      {
+        id: data.session.user.id,
+        email: data.session.user.email ?? '',
+        full_name: fullName,
+        phone,
+        role: 'client',
+      },
+      { onConflict: 'id' },
+    )
+    if (profileError) {
+      console.warn('[auth] profile upsert after PKCE confirm', profileError)
     }
   }
 
@@ -315,11 +357,7 @@ async function tryConsumeEmailConfirmationFromUrl(): Promise<boolean> {
 
   if (error) {
     console.warn('[auth] verifyOtp from email link failed', error)
-    try {
-      sessionStorage.setItem(AUTH_REDIRECT_FLASH_KEY, formatAuthError(error))
-    } catch {
-      /* ignore quota / private mode */
-    }
+    storeAuthRedirectFlash(error)
   }
 
   return true
@@ -531,12 +569,12 @@ export async function getSession(): Promise<Session | null> {
     sessionValidatedThisLoad = true
     const { error: userError } = await supabase.auth.getUser()
     if (userError && shouldClearStoredSessionAfterGetUser(userError)) {
-      console.warn('[Velox VIP] Clearing invalid auth session:', userError.message)
+      console.warn('[Rhodes Chauffeurs] Clearing invalid auth session:', userError.message)
       await supabase.auth.signOut({ scope: 'local' })
       return null
     }
     if (userError) {
-      console.warn('[Velox VIP] getUser validation failed (keeping session):', userError.message)
+      console.warn('[Rhodes Chauffeurs] getUser validation failed (keeping session):', userError.message)
     }
   }
 
@@ -625,21 +663,4 @@ function mapProfileRow(row: ProfileRow): UserProfile {
     avatarUrl: row.avatar_url,
     createdAt: row.created_at,
   }
-}
-
-/** @deprecated Use signIn */
-export async function signInWithPassword(credentials: { email: string; password: string }) {
-  return signIn(credentials.email, credentials.password)
-}
-
-/** @deprecated Use signUp */
-export async function signUpWithEmail(input: { email: string; password: string; fullName: string; phone?: string }) {
-  return signUp(input.email, input.password, input.fullName, input.phone ?? '', undefined)
-}
-
-/** @deprecated Use onAuthStateChange */
-export function subscribeToAuth(onChange: (payload: { user: User | null }) => void): () => void {
-  return onAuthStateChange((_event, session) => {
-    onChange({ user: session?.user ?? null })
-  })
 }

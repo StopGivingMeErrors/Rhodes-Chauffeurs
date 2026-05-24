@@ -26,7 +26,7 @@ import {
 } from '@/utils/bookingWizard'
 import { withTimeout } from '@/utils/async'
 import { cn } from '@/utils/cn'
-import { ROUTES } from '@/utils/constants'
+import { APP_NAME, ROUTES } from '@/utils/constants'
 import type { BookingContactValues } from '@/utils/validators'
 
 const STEP_SUBTITLES: Record<1 | 2 | 3, string> = {
@@ -38,7 +38,7 @@ const STEP_SUBTITLES: Record<1 | 2 | 3, string> = {
 export function BookingPage() {
   usePageMeta({
     title: 'Book a ride',
-    description: 'Book fixed VIP routes online or request a custom itinerary (cash to driver) with Velox VIP.',
+    description: `Book fixed VIP routes online or request a custom itinerary (cash to driver) with ${APP_NAME}.`,
   })
   const navigate = useNavigate()
   const { user, profile, updateClientProfile } = useAuth()
@@ -143,9 +143,11 @@ export function BookingPage() {
           saveToProfile: values.saveToProfile,
         })
 
-        if (values.saveToProfile) {
-          await updateClientProfile({ fullName: values.fullName.trim(), phone: values.phone.trim() })
-        }
+        // Always store contact phone on the profile so ops can reach the guest for this trip.
+        await updateClientProfile({
+          fullName: values.fullName.trim(),
+          phone: values.phone.trim(),
+        })
 
         const s = useBookingStore.getState()
         if (s.wizardOwnerId && s.wizardOwnerId !== sessionUid) {
@@ -260,7 +262,7 @@ export function BookingPage() {
                 ? 'Contact & requests'
                 : 'Payment'
           }
-          description="Velox VIP concierge routing"
+          description={`${APP_NAME} — reserve your transfer`}
           hoverGlow={currentStep === 3}
         >
           <div key={currentStep} className={cn('velox-booking-step', currentStep === 3 && 'space-y-6')}>
