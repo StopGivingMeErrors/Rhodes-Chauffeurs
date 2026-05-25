@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { MAX_BOOKING_PASSENGERS } from '@/utils/constants'
 import { buildPickupDateTimeLocal, minPickupInstantMs } from '@/utils/bookingPickupValidation'
 import { FIELD_LIMITS, sanitizePhone, sanitizeText } from '@/utils/sanitize'
 
@@ -74,7 +75,11 @@ export const journeyStepSchema = z
       .string()
       .regex(/^\d{2}:\d{2}$/, 'Choose a time')
       .refine((t) => PICKUP_TIME_SLOTS.includes(t), 'Time must be on a 15-minute interval'),
-    passengers: z.number().int().min(1, 'At least one passenger').max(12, 'Maximum 12 passengers'),
+    passengers: z
+      .number()
+      .int()
+      .min(1, 'At least one passenger')
+      .max(MAX_BOOKING_PASSENGERS, `Maximum ${MAX_BOOKING_PASSENGERS} passengers`),
     flightNumber: cleanText(FIELD_LIMITS.flightNumber)
       .pipe(z.string().max(FIELD_LIMITS.flightNumber))
       .optional()

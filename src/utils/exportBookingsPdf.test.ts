@@ -38,7 +38,7 @@ const sampleRow = (): BookingWithVehicle => ({
 
 describe('buildBookingsPdf', () => {
   it('produces a multi-page PDF document', () => {
-    const doc = buildBookingsPdf([sampleRow()], { filterLabel: 'Upcoming' })
+    const doc = buildBookingsPdf([sampleRow()], { filterLabel: 'Period: upcoming' })
     expect(doc.getNumberOfPages()).toBeGreaterThanOrEqual(1)
     const output = doc.output('arraybuffer')
     expect(output.byteLength).toBeGreaterThan(500)

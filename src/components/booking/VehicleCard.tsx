@@ -1,6 +1,7 @@
 import type { Vehicle } from '@/types/vehicle'
 import { Badge } from '@/components/ui/Badge'
 import { cn } from '@/utils/cn'
+import { vehiclePassengerCapacity } from '@/utils/constants'
 
 type VehicleCardProps = {
   vehicle: Vehicle
@@ -30,7 +31,7 @@ export function VehicleCard({ vehicle, className }: VehicleCardProps) {
         )}
         <div className="absolute left-3 top-3">
           <Badge tone="neutral" className="border-white/20 bg-black/40 text-[11px] text-white/90 backdrop-blur-md">
-            {vehicle.capacity} seats
+            Up to {vehiclePassengerCapacity(vehicle.capacity)} passengers
           </Badge>
         </div>
       </div>

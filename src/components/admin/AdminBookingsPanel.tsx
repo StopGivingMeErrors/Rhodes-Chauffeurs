@@ -30,7 +30,7 @@ import {
   getPickupBoundsForTimePreset,
   type AdminBookingsTimePreset,
 } from '@/utils/adminBookingFilters'
-import { downloadBookingsPdf } from '@/utils/exportBookingsPdf'
+import { buildBookingsPdfFilterLabelEn, downloadBookingsPdf } from '@/utils/exportBookingsPdf'
 
 function formatPickupDateTime(iso: string): string {
   const d = new Date(iso)
@@ -105,6 +105,30 @@ function SortHead({
 
 function isBookingOpsLocked(status: BookingWithVehicle['status']): boolean {
   return status === 'cancelled' || status === 'completed'
+}
+
+function ClientFlightNumberBlock({
+  booking,
+  className,
+}: {
+  booking: BookingWithVehicle
+  className?: string
+}) {
+  const flight = booking.flightNumber?.trim()
+  if (!flight) {
+    return null
+  }
+  return (
+    <div
+      className={cn(
+        'rounded-xl border border-white/10 bg-black/30 px-3 py-2.5',
+        className,
+      )}
+    >
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-velox-muted">Αριθμός πτήσης</p>
+      <p className="mt-1.5 font-mono text-sm tracking-wide text-white">{flight}</p>
+    </div>
+  )
 }
 
 function ClientSpecialRequestsBlock({
@@ -467,10 +491,13 @@ export function AdminBookingsPanel() {
                       ? `${dateFrom || 'start'}-to-${dateTo || 'end'}`
                       : 'filtered'
                     : timePreset
-                const filterLabel =
-                  statusFilter === 'all'
-                    ? `Περίοδος: ${suffix}`
-                    : `${ADMIN_BOOKING_STATUS_FILTERS.find((f) => f.value === statusFilter)?.label ?? statusFilter} · ${suffix}`
+                const filterLabel = buildBookingsPdfFilterLabelEn({
+                  statusFilter,
+                  timePreset,
+                  dateFrom,
+                  dateTo,
+                  recentDays: ADMIN_RECENT_BOOKINGS_DAYS,
+                })
                 downloadBookingsPdf(
                   sorted,
                   `rhodes-chauffeurs-bookings-${suffix}-${new Date().toISOString().slice(0, 10)}.pdf`,
@@ -504,6 +531,7 @@ export function AdminBookingsPanel() {
                 className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-lg shadow-black/30"
               >
                 <ClientContactBlock booking={b} />
+                <ClientFlightNumberBlock booking={b} />
                 <ClientSpecialRequestsBlock booking={b} />
                 <div className="text-xs text-white/85">
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-velox-muted">Διαδρομή</p>
@@ -583,6 +611,7 @@ export function AdminBookingsPanel() {
                   <tr key={b.id} className="border-t border-white/10 align-top hover:bg-white/5">
                     <td className="max-w-[14rem] px-3 py-3 text-xs">
                       <ClientContactBlock booking={b} />
+                      <ClientFlightNumberBlock booking={b} className="mt-2" />
                       <ClientSpecialRequestsBlock booking={b} className="mt-2" />
                     </td>
                     <td className="max-w-[220px] px-3 py-3 text-xs text-white/85">

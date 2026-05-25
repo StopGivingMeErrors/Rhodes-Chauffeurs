@@ -7,6 +7,7 @@ import {
   snapPickupSchedule,
   validatePickupSchedule,
 } from '@/utils/bookingPickupValidation'
+import { MAX_BOOKING_PASSENGERS } from '@/utils/constants'
 import { toPickupIso } from '@/utils/bookingWizard'
 import { PICKUP_TIME_SLOTS, todayIsoDate } from '@/utils/validators'
 
@@ -141,13 +142,16 @@ export function PickupScheduleControls() {
             value={passengers}
             onChange={(e) => setJourney({ passengers: Number(e.target.value) })}
           >
-            {Array.from({ length: 8 }, (_, i) => i + 1).map((n) => (
+            {Array.from({ length: MAX_BOOKING_PASSENGERS }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n} className="bg-velox-midnight text-white">
                 {n} {n === 1 ? 'guest' : 'guests'}
                 {n <= 4 ? ' (1–4 rate)' : ' (5–8 rate)'}
               </option>
             ))}
           </select>
+          <p className="text-xs text-white/45">
+            Up to {MAX_BOOKING_PASSENGERS} guests · 7-seat vehicle (driver not included)
+          </p>
         </label>
       </div>
     </div>

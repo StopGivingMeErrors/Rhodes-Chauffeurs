@@ -1,15 +1,25 @@
 import { format } from 'date-fns'
+import { enGB } from 'date-fns/locale'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
-import { bookingChargeAmount, type BookingWithVehicle } from '@/types/booking'
-import { adminSimplifiedStatusLabel } from '@/utils/adminBookingStatus'
+import { bookingChargeAmount, type BookingStatus, type BookingWithVehicle } from '@/types/booking'
 import { bookingRouteLabel } from '@/utils/adminBookingOps'
 import { APP_NAME, APP_TAGLINE } from '@/utils/constants'
 import { formatCurrencyMajor } from '@/utils/formatters'
 
 export type BookingsPdfMeta = {
+  /** English filter summary (jsPDF standard fonts cannot render Greek). */
   filterLabel?: string
   generatedAt?: Date
+}
+
+/** jsPDF Helvetica is WinAnsi-only — Greek UI strings render as gibberish without a custom font. */
+function toPdfText(text: string): string {
+  return text
+    .replace(/\u2192/g, '->')
+    .replace(/\u00b7/g, ' - ')
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/[^\t\n\r\x20-\x7E\xA0-\xFF]/g, '?')
 }
 
 function formatPickupForReport(iso: string): string {
@@ -17,24 +27,39 @@ function formatPickupForReport(iso: string): string {
   if (Number.isNaN(d.getTime())) {
     return iso
   }
-  return format(d, 'dd MMM yyyy · HH:mm')
+  return format(d, 'dd MMM yyyy · HH:mm', { locale: enGB })
+}
+
+function pdfSimplifiedStatus(status: BookingStatus): string {
+  if (status === 'cancelled') {
+    return 'Cancelled'
+  }
+  if (status === 'pending') {
+    return 'Pending'
+  }
+  return 'Confirmed'
+}
+
+function pdfRouteLabel(b: BookingWithVehicle): string {
+  const raw = bookingRouteLabel(b)
+  return toPdfText(raw.replace(/^Ειδική · /, 'Custom: '))
 }
 
 function tableBody(rows: BookingWithVehicle[]): string[][] {
   return rows.map((r) => {
     const charge = bookingChargeAmount(r)
     const price =
-      charge != null ? formatCurrencyMajor(r.finalPrice ?? charge, r.currency) : '—'
-    const clientLines = [r.clientEmail ?? '—', r.clientPhone?.trim() ? r.clientPhone : ''].filter(Boolean)
+      charge != null ? formatCurrencyMajor(r.finalPrice ?? charge, r.currency) : '-'
+    const clientLines = [r.clientEmail ?? '-', r.clientPhone?.trim() ? r.clientPhone : ''].filter(Boolean)
     return [
-      clientLines.join('\n'),
-      bookingRouteLabel(r),
+      toPdfText(clientLines.join('\n')),
+      pdfRouteLabel(r),
       formatPickupForReport(r.pickupDatetime),
       String(r.passengers),
-      adminSimplifiedStatusLabel(r.status),
-      r.vehicleName ?? '—',
-      r.driver?.fullName ?? '—',
-      price,
+      pdfSimplifiedStatus(r.status),
+      toPdfText(r.vehicleName ?? '-'),
+      toPdfText(r.driver?.fullName ?? '-'),
+      toPdfText(price),
     ]
   })
 }
@@ -58,28 +83,30 @@ export function buildBookingsPdf(rows: BookingWithVehicle[], meta?: BookingsPdfM
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(12)
   doc.setTextColor(40, 40, 40)
-  doc.text('Μητρώο κρατήσεων', 14, 30)
+  doc.text('Booking register', 14, 30)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
   doc.setTextColor(70, 70, 70)
-  const filterLine = meta?.filterLabel ? `Φίλτρο: ${meta.filterLabel}` : 'Φίλτρο: όλες οι ορατές διαδρομές'
+  const filterLine = meta?.filterLabel
+    ? `Filter: ${toPdfText(meta.filterLabel)}`
+    : 'Filter: all visible trips'
   doc.text(filterLine, 14, 36)
-  doc.text(`Δημιουργία: ${format(generatedAt, 'dd MMM yyyy · HH:mm')}`, 14, 41)
-  doc.text(`Εγγραφές: ${rows.length}`, 14, 46)
+  doc.text(`Generated: ${formatPickupForReport(generatedAt.toISOString())}`, 14, 41)
+  doc.text(`Records: ${rows.length}`, 14, 46)
 
   autoTable(doc, {
     startY: 52,
     head: [
       [
-        'Πελάτης',
-        'Διαδρομή',
-        'Παραλαβή',
-        'Επιβάτες',
-        'Κατάσταση',
-        'Όχημα',
-        'Οδηγός',
-        'Τιμή',
+        'Client',
+        'Route',
+        'Pickup',
+        'Guests',
+        'Status',
+        'Vehicle',
+        'Driver',
+        'Price',
       ],
     ],
     body: tableBody(rows),
@@ -114,7 +141,7 @@ export function buildBookingsPdf(rows: BookingWithVehicle[], meta?: BookingsPdfM
       doc.setFontSize(8)
       doc.setTextColor(120, 120, 120)
       doc.text(
-        `${APP_NAME} — επίσημο αρχείο κρατήσεων. Για εσωτερική χρήση.`,
+        `${APP_NAME} - official booking record. For internal use.`,
         14,
         doc.internal.pageSize.getHeight() - 8,
       )
@@ -127,7 +154,7 @@ export function buildBookingsPdf(rows: BookingWithVehicle[], meta?: BookingsPdfM
   if (rows.length === 0) {
     doc.setFontSize(10)
     doc.setTextColor(100, 100, 100)
-    doc.text('Δεν υπάρχουν κρατήσεις σε αυτή την εξαγωγή.', 14, 60)
+    doc.text('No bookings in this export.', 14, 60)
   }
 
   return doc
@@ -141,4 +168,36 @@ export function downloadBookingsPdf(
   const doc = buildBookingsPdf(rows, meta)
   const name = filename.endsWith('.pdf') ? filename : `${filename}.pdf`
   doc.save(name)
+}
+
+/** English filter line for PDF export (pass from admin panel). */
+export function buildBookingsPdfFilterLabelEn(input: {
+  statusFilter: 'all' | 'pending' | 'confirmed' | 'cancelled'
+  timePreset: 'upcoming' | 'all' | 'today' | 'recent' | 'custom'
+  dateFrom: string
+  dateTo: string
+  recentDays: number
+}): string {
+  const presetLabel =
+    input.timePreset === 'custom'
+      ? input.dateFrom || input.dateTo
+        ? `${input.dateFrom || 'start'} to ${input.dateTo || 'end'}`
+        : 'custom range'
+      : input.timePreset === 'recent'
+        ? `recent (${input.recentDays}d)`
+        : input.timePreset
+
+  const statusLabel =
+    input.statusFilter === 'all'
+      ? 'All statuses'
+      : input.statusFilter === 'pending'
+        ? 'Pending'
+        : input.statusFilter === 'cancelled'
+          ? 'Cancelled'
+          : 'Confirmed'
+
+  if (input.statusFilter === 'all') {
+    return `Period: ${presetLabel}`
+  }
+  return `${statusLabel} - ${presetLabel}`
 }

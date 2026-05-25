@@ -5,6 +5,7 @@ import { availablePickupTimesForDate } from '@/utils/bookingPickupValidation'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useBookingStore } from '@/stores/bookingStore'
+import { MAX_BOOKING_PASSENGERS } from '@/utils/constants'
 import { journeyStepSchema, type JourneyStepValues } from '@/utils/validators'
 import { toPickupIso } from '@/utils/bookingWizard'
 
@@ -143,15 +144,18 @@ export function JourneyStep({ onNext, onCancelCustom, isCustomRoute }: JourneySt
                   type="button"
                   variant="secondary"
                   size="sm"
-                  disabled={field.value >= 12}
+                  disabled={field.value >= MAX_BOOKING_PASSENGERS}
                   aria-label="Increase passenger count"
-                  onClick={() => field.onChange(Math.min(12, field.value + 1))}
+                  onClick={() => field.onChange(Math.min(MAX_BOOKING_PASSENGERS, field.value + 1))}
                 >
                   +
                 </Button>
               </div>
             )}
           />
+          <p className="text-xs text-white/45">
+            7-seat vehicle · up to {MAX_BOOKING_PASSENGERS} guests (driver not included)
+          </p>
           {errors.passengers?.message ? (
             <span className="text-xs text-red-300">{errors.passengers.message}</span>
           ) : null}
