@@ -19,6 +19,12 @@ type CheckoutStepProps = {
   onPaid: (bookingId: string) => void
 }
 
+/** Flip to true when live Stripe keys and checkout are ready. */
+const CARD_CHECKOUT_ENABLED = false
+
+const CARD_CHECKOUT_UNAVAILABLE_MESSAGE =
+  "We're sorry for the inconvenience. We've literally just launched our company, and we can only accept cash payments at the moment."
+
 export function CheckoutStep({ onBack, onPaid }: CheckoutStepProps) {
   const checkoutId = useBookingStore((s) => s.checkoutBookingId)
   const fullName = useBookingStore((s) => s.fullName)
@@ -27,7 +33,7 @@ export function CheckoutStep({ onBack, onPaid }: CheckoutStepProps) {
   const queryClient = useQueryClient()
   const { booking, isBookingLoading, bookingError } = useBooking(checkoutId ?? undefined)
   const isCustomCash = booking?.bookingType === 'custom'
-  const [payMode, setPayMode] = useState<'stripe' | 'cash'>('stripe')
+  const [payMode, setPayMode] = useState<'stripe' | 'cash'>(CARD_CHECKOUT_ENABLED ? 'stripe' : 'cash')
   const [stripeError, setStripeError] = useState<string | null>(null)
   const [stripeStarting, setStripeStarting] = useState(false)
   const [stripeStatus, setStripeStatus] = useState<string | null>(null)
@@ -196,10 +202,14 @@ export function CheckoutStep({ onBack, onPaid }: CheckoutStepProps) {
         <Card title="Payment" description="Pay securely with Stripe, or reserve now and pay your chauffeur in cash.">
           <div className="grid gap-3 sm:grid-cols-2">
             <label
-              className={`flex cursor-pointer flex-col gap-1 rounded-xl border px-4 py-3 text-sm transition ${
-                payMode === 'stripe'
-                  ? 'border-velox-gold/60 bg-velox-gold/10 text-white'
-                  : 'border-white/10 bg-white/[0.03] text-white/80 hover:border-white/20'
+              className={`flex flex-col gap-1 rounded-xl border px-4 py-3 text-sm ${
+                CARD_CHECKOUT_ENABLED
+                  ? `cursor-pointer transition ${
+                      payMode === 'stripe'
+                        ? 'border-velox-gold/60 bg-velox-gold/10 text-white'
+                        : 'border-white/10 bg-white/[0.03] text-white/80 hover:border-white/20'
+                    }`
+                  : 'cursor-not-allowed border-white/10 bg-white/[0.02] text-white/50'
               }`}
             >
               <span className="flex items-center gap-2 font-medium text-white">
@@ -207,10 +217,15 @@ export function CheckoutStep({ onBack, onPaid }: CheckoutStepProps) {
                   type="radio"
                   name="velox-pay"
                   className="accent-velox-gold"
-                  checked={payMode === 'stripe'}
-                  onChange={() => setPayMode('stripe')}
+                  checked={CARD_CHECKOUT_ENABLED && payMode === 'stripe'}
+                  disabled={!CARD_CHECKOUT_ENABLED}
+                  onChange={() => {
+                    if (CARD_CHECKOUT_ENABLED) {
+                      setPayMode('stripe')
+                    }
+                  }}
                 />
-                Card (Stripe)
+                Pay with card
               </span>
             </label>
             <label
@@ -235,13 +250,26 @@ export function CheckoutStep({ onBack, onPaid }: CheckoutStepProps) {
         </Card>
       ) : null}
 
-      {payMode === 'stripe' && stripeError ? (
+      {CARD_CHECKOUT_ENABLED && payMode === 'stripe' && stripeError ? (
         <Card title="Payment">
           <p className="text-sm text-red-200">{stripeError}</p>
         </Card>
       ) : null}
 
-      {booking.status === 'pending' && payMode === 'stripe' && isSupabaseConfigured && customerEmail.includes('@') ? (
+      {booking.status === 'pending' && isSupabaseConfigured && !CARD_CHECKOUT_ENABLED ? (
+        <Card title="Card payment">
+          <Button type="button" variant="secondary" className="w-full sm:w-auto" disabled>
+            Pay with card
+          </Button>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/60">{CARD_CHECKOUT_UNAVAILABLE_MESSAGE}</p>
+        </Card>
+      ) : null}
+
+      {booking.status === 'pending' &&
+      CARD_CHECKOUT_ENABLED &&
+      payMode === 'stripe' &&
+      isSupabaseConfigured &&
+      customerEmail.includes('@') ? (
         <Card title="Card payment">
           {stripeStatus ? (
             <p className="mb-3 text-sm text-velox-gold-light/90" role="status">

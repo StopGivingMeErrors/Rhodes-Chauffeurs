@@ -14,6 +14,12 @@ import { isSupabaseConfigured } from '@/services/supabase'
 import { APP_NAME, QUERY_KEYS, ROUTES } from '@/utils/constants'
 import { formatCurrencyMajor, formatDateTime } from '@/utils/formatters'
 
+/** Flip to true when live Stripe keys and checkout are ready. */
+const CARD_CHECKOUT_ENABLED = false
+
+const CARD_CHECKOUT_UNAVAILABLE_MESSAGE =
+  "We're sorry for the inconvenience. We've literally just launched our company, and we can only accept cash payments at the moment."
+
 export function ConfirmationPage() {
   usePageMeta({
     title: 'Reservation & payment',
@@ -147,7 +153,7 @@ export function ConfirmationPage() {
 
       {booking.status === 'pending' && booking.paymentMethod === 'stripe' && isSupabaseConfigured && customerEmail ? (
         <div className="mt-8 space-y-4">
-          {stripeError ? (
+          {CARD_CHECKOUT_ENABLED && stripeError ? (
             <Card title="Payment">
               <p className="text-sm text-red-200">{stripeError}</p>
               <Button type="button" variant="secondary" className="mt-3" onClick={() => setStripeError(null)}>
@@ -155,15 +161,33 @@ export function ConfirmationPage() {
               </Button>
             </Card>
           ) : null}
-          <Card title="Pay with card" description="You will be redirected to Stripe’s secure checkout page.">
-            <Button
-              type="button"
-              isLoading={stripeStarting}
-              disabled={stripeStarting}
-              onClick={() => void handlePayWithCard()}
-            >
-              Continue to Stripe checkout
-            </Button>
+          <Card
+            title="Pay with card"
+            description={
+              CARD_CHECKOUT_ENABLED
+                ? 'You will be redirected to Stripe’s secure checkout page.'
+                : 'Online card checkout is temporarily unavailable.'
+            }
+          >
+            {CARD_CHECKOUT_ENABLED ? (
+              <Button
+                type="button"
+                isLoading={stripeStarting}
+                disabled={stripeStarting}
+                onClick={() => void handlePayWithCard()}
+              >
+                Continue to Stripe checkout
+              </Button>
+            ) : (
+              <>
+                <Button type="button" variant="secondary" disabled>
+                  Pay with card
+                </Button>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/60">
+                  {CARD_CHECKOUT_UNAVAILABLE_MESSAGE}
+                </p>
+              </>
+            )}
           </Card>
         </div>
       ) : null}
