@@ -9,4 +9,4 @@ Disallow: /dashboard
 Disallow: /confirmation/
 Disallow: /login
 
-# Sitemap: https://rodoschauffeurs.gr/sitemap.xml
+ Sitemap: https://rodoschauffeurs.gr/sitemap.xml
