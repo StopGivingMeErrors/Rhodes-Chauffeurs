@@ -13,7 +13,7 @@ import { QUERY_KEYS } from '@/utils/constants'
 import { cn } from '@/utils/cn'
 
 const cellInputClass =
-  'w-full min-w-[8rem] rounded-lg border border-white/15 bg-black/40 px-2 py-1.5 text-sm text-white outline-none focus:border-velox-gold/40'
+  'w-full rounded-lg border border-white/15 bg-black/40 px-2 py-1.5 text-sm text-white outline-none focus:border-velox-gold/40'
 
 export function AdminDriversPanel() {
   const qc = useQueryClient()
@@ -99,13 +99,104 @@ export function AdminDriversPanel() {
     setEditPhone(d.phone ?? '')
   }
 
+  function renderActions(d: CompanyDriver) {
+    if (editingId === d.id) {
+      return (
+        <div className="flex flex-wrap gap-2 sm:justify-end">
+          <Button type="button" size="sm" variant="secondary" disabled={updateMut.isPending} onClick={() => setEditingId(null)}>
+            Ακύρωση
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            disabled={updateMut.isPending || !editName.trim()}
+            isLoading={updateMut.isPending}
+            onClick={() => void updateMut.mutateAsync(d.id)}
+          >
+            Αποθήκευση
+          </Button>
+        </div>
+      )
+    }
+    return (
+      <div className="flex flex-wrap gap-2 sm:justify-end">
+        <Button type="button" size="sm" variant="secondary" onClick={() => startEdit(d)}>
+          Επεξεργασία
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          className={cn('text-red-300 hover:text-red-200')}
+          disabled={deleteMut.isPending}
+          onClick={() => {
+            if (window.confirm(`Αφαίρεση του ${d.fullName} από το roster;`)) {
+              void deleteMut.mutateAsync(d.id)
+            }
+          }}
+        >
+          Διαγραφή
+        </Button>
+      </div>
+    )
+  }
+
+  function renderDriverFields(d: CompanyDriver) {
+    const editing = editingId === d.id
+    return (
+      <div className="grid gap-3">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-velox-muted">Όνομα</p>
+          {editing ? (
+            <input
+              className={cn(cellInputClass, 'mt-1')}
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              aria-label="Όνομα"
+            />
+          ) : (
+            <p className="mt-1 font-medium text-white">{d.fullName}</p>
+          )}
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-velox-muted">Email</p>
+          {editing ? (
+            <input
+              className={cn(cellInputClass, 'mt-1')}
+              type="email"
+              value={editEmail}
+              onChange={(e) => setEditEmail(e.target.value)}
+              aria-label="Email"
+            />
+          ) : (
+            <p className="mt-1 break-all text-white/80">{d.email ?? '—'}</p>
+          )}
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-velox-muted">Τηλέφωνο</p>
+          {editing ? (
+            <input
+              className={cn(cellInputClass, 'mt-1')}
+              type="tel"
+              value={editPhone}
+              onChange={(e) => setEditPhone(e.target.value)}
+              aria-label="Τηλέφωνο"
+            />
+          ) : (
+            <p className="mt-1 text-white/80">{d.phone ?? '—'}</p>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   const columns: AdminColumn<CompanyDriver>[] = [
     {
       id: 'name',
       header: 'Όνομα',
       cell: (d) =>
         editingId === d.id ? (
-          <input className={cellInputClass} value={editName} onChange={(e) => setEditName(e.target.value)} aria-label="Όνομα" />
+          <input className={cn(cellInputClass, 'min-w-[8rem]')} value={editName} onChange={(e) => setEditName(e.target.value)} aria-label="Όνομα" />
         ) : (
           <span className="font-medium text-white">{d.fullName}</span>
         ),
@@ -116,7 +207,7 @@ export function AdminDriversPanel() {
       cell: (d) =>
         editingId === d.id ? (
           <input
-            className={cellInputClass}
+            className={cn(cellInputClass, 'min-w-[8rem]')}
             type="email"
             value={editEmail}
             onChange={(e) => setEditEmail(e.target.value)}
@@ -131,7 +222,13 @@ export function AdminDriversPanel() {
       header: 'Τηλέφωνο',
       cell: (d) =>
         editingId === d.id ? (
-          <input className={cellInputClass} type="tel" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} aria-label="Τηλέφωνο" />
+          <input
+            className={cn(cellInputClass, 'min-w-[8rem]')}
+            type="tel"
+            value={editPhone}
+            onChange={(e) => setEditPhone(e.target.value)}
+            aria-label="Τηλέφωνο"
+          />
         ) : (
           <span className="text-white/80">{d.phone ?? '—'}</span>
         ),
@@ -140,43 +237,7 @@ export function AdminDriversPanel() {
       id: 'actions',
       header: 'Ενέργειες',
       className: 'w-[1%] whitespace-nowrap text-right',
-      cell: (d) =>
-        editingId === d.id ? (
-          <div className="flex flex-wrap justify-end gap-2">
-            <Button type="button" size="sm" variant="secondary" disabled={updateMut.isPending} onClick={() => setEditingId(null)}>
-              Ακύρωση
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              disabled={updateMut.isPending || !editName.trim()}
-              isLoading={updateMut.isPending}
-              onClick={() => void updateMut.mutateAsync(d.id)}
-            >
-              Αποθήκευση
-            </Button>
-          </div>
-        ) : (
-          <div className="flex flex-wrap justify-end gap-2">
-            <Button type="button" size="sm" variant="secondary" onClick={() => startEdit(d)}>
-              Επεξεργασία
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              className={cn('text-red-300 hover:text-red-200')}
-              disabled={deleteMut.isPending}
-              onClick={() => {
-                if (window.confirm(`Αφαίρεση του ${d.fullName} από το roster;`)) {
-                  void deleteMut.mutateAsync(d.id)
-                }
-              }}
-            >
-              Διαγραφή
-            </Button>
-          </div>
-        ),
+      cell: (d) => renderActions(d),
     },
   ]
 
@@ -196,17 +257,19 @@ export function AdminDriversPanel() {
     )
   }
 
+  const emptyMessage = 'Δεν υπάρχουν οδηγοί. Προσθέστε από πάνω — εμφανίζονται και στο dropdown κρατήσεων.'
+
   return (
     <div className="space-y-6">
       <Card title="Προσθήκη οδηγού" description="Εσωτερικό roster μόνο — χωρίς σύνδεση στην εφαρμογή. Χρησιμοποιείται στις κρατήσεις.">
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Input label="Ονοματεπώνυμο" value={fullName} onChange={(e) => setFullName(e.target.value)} autoComplete="name" />
           <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
           <Input label="Τηλέφωνο" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" />
         </div>
         <Button
           type="button"
-          className="mt-4"
+          className="mt-4 w-full sm:w-auto"
           disabled={!fullName.trim() || createMut.isPending}
           isLoading={createMut.isPending}
           onClick={() => void createMut.mutateAsync()}
@@ -221,12 +284,34 @@ export function AdminDriversPanel() {
         </Button>
       </div>
 
-      <AdminTable<CompanyDriver>
-        data={drivers}
-        getRowId={(d) => d.id}
-        emptyMessage="Δεν υπάρχουν οδηγοί. Προσθέστε από πάνω — εμφανίζονται και στο dropdown κρατήσεων."
-        columns={columns}
-      />
+      {/* Phone / tablet: stacked cards */}
+      <div className="space-y-3 lg:hidden">
+        {drivers.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 px-4 py-10 text-center text-sm text-velox-muted">
+            {emptyMessage}
+          </div>
+        ) : (
+          drivers.map((d) => (
+            <article
+              key={d.id}
+              className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-lg shadow-black/30"
+            >
+              {renderDriverFields(d)}
+              <div className="border-t border-white/10 pt-3">{renderActions(d)}</div>
+            </article>
+          ))
+        )}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden lg:block">
+        <AdminTable<CompanyDriver>
+          data={drivers}
+          getRowId={(d) => d.id}
+          emptyMessage={emptyMessage}
+          columns={columns}
+        />
+      </div>
     </div>
   )
 }

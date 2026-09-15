@@ -24,7 +24,7 @@ export function AdminTable<T>({ data, columns, getRowId, emptyMessage }: AdminTa
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl shadow-black/40 backdrop-blur-xl">
+    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/5 shadow-xl shadow-black/40 backdrop-blur-xl">
       <table className="min-w-full border-collapse text-left text-sm">
         <thead className="bg-white/5 text-xs uppercase tracking-wide text-velox-muted">
           <tr>

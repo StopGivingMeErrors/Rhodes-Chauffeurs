@@ -2,189 +2,282 @@ import { Link } from 'react-router-dom'
 import {
   ArrowRight,
   CalendarClock,
-  Headphones,
+  Car,
   MapPin,
-  Shield,
   Sparkles,
-  Star,
 } from 'lucide-react'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { LandingFleetShowcase } from '@/components/booking/LandingFleetShowcase'
 import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
 import { usePageMeta } from '@/hooks/usePageMeta'
 import { APP_NAME, APP_SITE_HOST, APP_SITE_URL, APP_TAGLINE, ROUTES } from '@/utils/constants'
+import { cn } from '@/utils/cn'
 
-const steps = [
+const bento = [
   {
-    step: '01',
-    title: 'Choose your route',
-    body: 'Pick a fixed Lindos route or request a custom itinerary — pricing follows your guest count.',
+    title: 'Airport to anywhere',
+    body: 'Rhodes Airport pickups timed to your flight — calm doors, no guesswork.',
+    icon: MapPin,
+    className: 'sm:col-span-2 sm:row-span-2',
+    large: true,
+  },
+  {
+    title: 'Lindos routes',
+    body: 'Published fares. Clear pricing before you confirm.',
     icon: Sparkles,
+    className: '',
+    large: false,
   },
   {
-    step: '02',
-    title: 'Confirm & pay securely',
-    body: 'Review your itinerary, then checkout with Stripe—your card never touches our servers.',
-    icon: Shield,
+    title: 'Custom itineraries',
+    body: 'Hotels, villages, and island days — planned around you.',
+    icon: Car,
+    className: '',
+    large: false,
   },
   {
-    step: '03',
-    title: 'Ride in calm',
-    body: 'A vetted chauffeur arrives on time, monitors traffic, and adapts to your schedule.',
+    title: 'On-time arrivals',
+    body: 'Traffic-aware chauffeurs who adjust when your plans shift.',
     icon: CalendarClock,
+    className: 'sm:col-span-2',
+    large: false,
   },
 ] as const
 
-const stats = [
-  { value: '500+', label: 'Private clients served' },
-  { value: '100+', label: 'Trusted by tourists from 100+ countries' },
-  { value: '24/7', label: 'Concierge support' },
+const steps = [
+  {
+    step: '1',
+    title: 'Choose your route',
+    body: 'Fixed Lindos transfer or a custom itinerary built for your day.',
+  },
+  {
+    step: '2',
+    title: 'Confirm your details',
+    body: 'Share pickup, guests, and flight — then reserve your chauffeur.',
+  },
+  {
+    step: '3',
+    title: 'Travel with ease',
+    body: 'Meet your driver on time and enjoy a quiet, private ride.',
+  },
 ] as const
 
 export function LandingPage() {
   usePageMeta({
     title: 'VIP transfers in Rhodes',
     description:
-      'Rodhes Chauffeurs — VIP transfers and chauffeur services across Rhodes. Fixed Lindos routes with online payment, or custom itineraries (cash to driver).',
+      'Rhodes Chauffeurs — VIP transfers and chauffeur services across Rhodes. Fixed Lindos routes or custom itineraries with cash to your chauffeur.',
   })
+
   return (
     <PageWrapper variant="landing">
-      {/* Hero */}
-      <section className="relative flex min-h-[min(100dvh,920px)] flex-col justify-center overflow-hidden px-4 pb-20 pt-8 sm:px-8 lg:px-12">
+      {/* Hero — one composition: brand, headline, line, CTAs */}
+      <section className="relative flex min-h-[min(100dvh,880px)] flex-col justify-end overflow-hidden px-4 pb-16 pt-24 sm:px-8 sm:pb-24 lg:px-12 lg:pb-28">
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_-10%,rgba(201,168,76,0.14),transparent_55%),radial-gradient(ellipse_70%_50%_at_100%_50%,rgba(99,102,241,0.06),transparent_50%),radial-gradient(ellipse_60%_45%_at_0%_100%,rgba(201,168,76,0.08),transparent_45%)]"
-          style={{ animation: 'velox-aurora 22s ease-in-out infinite' }}
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 100% 80% at 50% -20%, rgba(232,201,122,0.18), transparent 55%), radial-gradient(ellipse 60% 50% at 85% 60%, rgba(201,168,76,0.08), transparent 50%), radial-gradient(ellipse 50% 40% at 10% 90%, rgba(255,255,255,0.04), transparent 45%), linear-gradient(180deg, #0a0a0f 0%, #0c0c14 45%, #0a0a0f 100%)',
+            animation: 'velox-aurora 22s ease-in-out infinite',
+          }}
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-velox-void/40 to-velox-void" />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.35]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+            backgroundSize: '64px 64px',
+            maskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent)',
+          }}
+        />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-velox-void to-transparent" />
 
-        <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-velox-gold-light/90">
-              {APP_NAME}
+        <div className="relative z-10 mx-auto w-full max-w-5xl text-center">
+          <p
+            className="font-display text-[clamp(2.75rem,8vw,5.5rem)] font-medium leading-[0.95] tracking-tight text-white"
+            style={{ animation: 'velox-booking-step-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both' }}
+          >
+            {APP_NAME}
+          </p>
+          <h1
+            className="mx-auto mt-6 max-w-2xl text-balance text-lg font-medium leading-snug text-white/85 sm:text-xl sm:leading-relaxed"
+            style={{ animation: 'velox-booking-step-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both' }}
+          >
+            Private chauffeur transfers across Rhodes — airport, Lindos, and beyond.
+          </h1>
+          <p
+            className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-white/55 sm:text-base"
+            style={{ animation: 'velox-booking-step-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both' }}
+          >
+            Clear routes. Punctual drivers. A quieter way to arrive.
+          </p>
+          <div
+            className="mt-10 flex flex-wrap items-center justify-center gap-3 sm:gap-4"
+            style={{ animation: 'velox-booking-step-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both' }}
+          >
+            <Button to={ROUTES.book} size="lg" rightIcon={<ArrowRight className="h-5 w-5" />}>
+              Book a ride
+            </Button>
+            <Button to={ROUTES.login} variant="secondary" size="lg">
+              Client login
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Bento — qualitative, no fake metrics */}
+      <section className="relative px-4 py-20 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-6xl">
+          <div className="max-w-xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-velox-gold-light/80">
+              Designed for the island
             </p>
-            <h1 className="mt-6 font-display text-[clamp(2.25rem,5.5vw,3.75rem)] font-medium leading-[1.08] tracking-tight text-white">
-              <span className="bg-gradient-to-r from-velox-gold-light via-velox-gold to-[#8f7535] bg-clip-text text-transparent">
-                {APP_TAGLINE}
-              </span>
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
-              Private transfers from Rhodes Airport, hotels, and Lindos — punctual chauffeurs, clear pricing on
-              published routes, and calm arrivals for every guest.
-            </p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Button to={ROUTES.book} size="lg" rightIcon={<ArrowRight className="h-5 w-5" />}>
-                Book a Ride
-              </Button>
-              <Button to={ROUTES.login} variant="secondary" size="lg">
-                Client login
-              </Button>
-            </div>
+            <h2 className="mt-3 font-display text-3xl tracking-tight text-white sm:text-4xl">
+              Everything you need. Nothing you don’t.
+            </h2>
           </div>
 
-          <Card
-            hoverGlow
-            className="relative border-white/10 bg-white/[0.06] p-8 shadow-2xl shadow-black/50 lg:p-10"
-          >
-            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-velox-gold/10 blur-2xl" />
-            <p className="text-xs font-semibold uppercase tracking-widest text-velox-gold-light">Quick path</p>
-            <p className="mt-3 font-display text-2xl text-white">Reserve in under a minute</p>
-            <p className="mt-2 text-sm text-velox-muted">
-              Choose a route, share pickup details, and confirm online or pay your chauffeur in cash for custom trips.
-            </p>
-            <div className="mt-8 flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/70">
-              <MapPin className="h-4 w-4 shrink-0 text-velox-gold-light" aria-hidden />
-              <span>Airport, hotel, or door-to-door—wherever the evening takes you.</span>
-            </div>
-            <div className="mt-6">
-              <Button to={ROUTES.book} className="w-full" size="lg" rightIcon={<ArrowRight className="h-5 w-5" />}>
-                Book a Ride
-              </Button>
-            </div>
-          </Card>
+          <div className="mt-12 grid auto-rows-[minmax(11rem,auto)] gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+            {bento.map(({ title, body, icon: Icon, className, large }) => (
+              <article
+                key={title}
+                className={cn(
+                  'group relative flex flex-col justify-between overflow-hidden rounded-[1.75rem] border border-white/[0.08] bg-white/[0.035] p-6 transition duration-500 ease-out hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/[0.055] sm:p-7',
+                  className,
+                )}
+              >
+                <div
+                  className={cn(
+                    'pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-velox-gold/10 blur-3xl transition duration-700 group-hover:bg-velox-gold/20',
+                    large && 'h-48 w-48',
+                  )}
+                />
+                <div className="relative">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-black/30 text-velox-gold-light">
+                    <Icon className="h-[18px] w-[18px]" aria-hidden />
+                  </span>
+                  <h3
+                    className={cn(
+                      'mt-5 font-display tracking-tight text-white',
+                      large ? 'text-2xl sm:text-3xl' : 'text-xl',
+                    )}
+                  >
+                    {title}
+                  </h3>
+                  <p
+                    className={cn(
+                      'mt-2 leading-relaxed text-white/55',
+                      large ? 'max-w-sm text-base' : 'text-sm',
+                    )}
+                  >
+                    {body}
+                  </p>
+                </div>
+                {large ? (
+                  <div className="relative mt-8">
+                    <Button to={ROUTES.book} variant="secondary" size="sm" rightIcon={<ArrowRight className="h-4 w-4" />}>
+                      Start booking
+                    </Button>
+                  </div>
+                ) : null}
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Fleet */}
-      <section className="border-t border-white/5 bg-black/20 py-20">
+      <section className="border-y border-white/[0.06] bg-black/25 py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-8 lg:px-12">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-velox-gold-light">The fleet</p>
-              <h2 className="mt-2 font-display text-3xl text-white sm:text-4xl">Our vehicles</h2>
-              <p className="mt-2 max-w-lg text-sm text-velox-muted">
-                Premium chauffeur transport for Rhodes — maintained to VIP standards for transfers and island tours.
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div className="max-w-lg">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-velox-gold-light/80">
+                The fleet
+              </p>
+              <h2 className="mt-3 font-display text-3xl tracking-tight text-white sm:text-4xl">
+                Quiet luxury on wheels
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-white/55">
+                Maintained for VIP transfers and island days — space for guests, luggage, and a calm ride.
               </p>
             </div>
             <Button to={ROUTES.book} variant="ghost" className="text-velox-gold-light" rightIcon={<ArrowRight className="h-4 w-4" />}>
               Book now
             </Button>
           </div>
-
-          <div className="mt-10">
+          <div className="mt-12">
             <LandingFleetShowcase />
           </div>
         </div>
       </section>
 
       {/* How it works */}
-      <section className="py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-8 lg:px-12">
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.25em] text-velox-gold-light">
-            How it works
-          </p>
-          <h2 className="mt-2 text-center font-display text-3xl text-white sm:text-4xl">Three quiet steps</h2>
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {steps.map(({ step, title, body, icon: Icon }) => (
-              <Card
+      <section className="px-4 py-20 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-velox-gold-light/80">
+              How it works
+            </p>
+            <h2 className="mt-3 font-display text-3xl tracking-tight text-white sm:text-4xl">
+              Three simple steps
+            </h2>
+          </div>
+
+          <ol className="mt-14 grid gap-3 sm:grid-cols-3 sm:gap-4">
+            {steps.map(({ step, title, body }) => (
+              <li
                 key={step}
-                hoverGlow
-                className="relative flex flex-col border-white/10 bg-white/[0.04] p-8 text-left"
+                className="relative rounded-[1.75rem] border border-white/[0.08] bg-gradient-to-b from-white/[0.05] to-transparent px-6 py-8 text-left transition duration-500 hover:border-white/14"
               >
-                <span className="font-display text-5xl font-medium leading-none text-white/[0.08]">{step}</span>
-                <div className="mt-4 inline-flex h-11 w-11 items-center justify-center rounded-xl border border-velox-gold/30 bg-velox-gold/10 text-velox-gold-light">
-                  <Icon className="h-5 w-5" aria-hidden />
-                </div>
+                <span className="font-display text-5xl font-medium leading-none text-velox-gold/25">{step}</span>
                 <h3 className="mt-5 font-display text-xl text-white">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-velox-muted">{body}</p>
-              </Card>
+                <p className="mt-2 text-sm leading-relaxed text-white/55">{body}</p>
+              </li>
             ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* Closing CTA */}
+      <section className="px-4 pb-20 sm:px-8 lg:px-12">
+        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] border border-white/[0.08] px-6 py-16 text-center sm:px-12 sm:py-20">
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(ellipse 80% 70% at 50% 0%, rgba(201,168,76,0.16), transparent 60%), linear-gradient(180deg, rgba(255,255,255,0.04), transparent)',
+            }}
+          />
+          <div className="relative z-10">
+            <h2 className="font-display text-3xl tracking-tight text-white sm:text-4xl">
+              Ready when you are
+            </h2>
+            <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-white/55 sm:text-base">
+              Reserve your transfer in a few taps — we’ll take care of the rest.
+            </p>
+            <div className="mt-8">
+              <Button to={ROUTES.book} size="lg" rightIcon={<ArrowRight className="h-5 w-5" />}>
+                Book a ride
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Trust */}
-      <section className="border-y border-white/5 bg-white/[0.02] py-16">
-        <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-12 px-4 sm:gap-20 sm:px-8 lg:px-12">
-          {stats.map(({ value, label }) => (
-            <div key={label} className="text-center">
-              <p className="font-display text-4xl font-medium text-velox-gold-light sm:text-5xl">{value}</p>
-              <p className="mt-2 text-sm text-velox-muted">{label}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mx-auto mt-12 flex max-w-2xl flex-wrap items-center justify-center gap-2 text-velox-gold-light/80">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className="h-4 w-4 fill-velox-gold/30 text-velox-gold/50" aria-hidden />
-          ))}
-          <span className="ml-2 text-xs uppercase tracking-wider text-velox-muted">Trusted by global travelers</span>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="mt-auto border-t border-white/10 bg-velox-void py-14">
+      {/* Footer — honest, no fake stats or phone */}
+      <footer className="mt-auto border-t border-white/[0.06] py-12">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-8 px-4 text-center sm:flex-row sm:px-8 sm:text-left lg:px-12">
           <div>
             <p className="font-display text-lg text-white">{APP_NAME}</p>
-            <p className="mt-1 text-xs text-velox-muted">{APP_TAGLINE}</p>
+            <p className="mt-1 max-w-xs text-xs leading-relaxed text-white/45">{APP_TAGLINE}</p>
             <a
               href={APP_SITE_URL}
-              className="mt-2 inline-block text-xs text-velox-gold-light/90 transition hover:text-velox-gold-light hover:underline"
+              className="mt-2 inline-block text-xs text-velox-gold-light/80 transition hover:text-velox-gold-light"
             >
               {APP_SITE_HOST}
             </a>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-velox-muted">
+          <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-white/45">
             <Link className="transition hover:text-white" to={ROUTES.book}>
               Book
             </Link>
@@ -197,14 +290,7 @@ export function LandingPage() {
             <Link className="transition hover:text-white" to={ROUTES.terms}>
               Terms
             </Link>
-            <span className="flex items-center gap-1.5 text-white/40">
-              <Headphones className="h-3.5 w-3.5" aria-hidden />
-              Concierge 24/7
-            </span>
-            <span className="flex items-center gap-1.5 text-white/40">
-            +306969696969
-            </span>
-          </div>
+          </nav>
         </div>
       </footer>
     </PageWrapper>
